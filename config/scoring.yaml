@@ -1,0 +1,60 @@
+version: "0.1"
+
+importance_score:
+  range: [0, 100]
+  dimensions:
+    market_impact:
+      weight: 0.25
+      description: 对价格、政策预期或企业盈利的潜在影响
+    expectation_surprise:
+      weight: 0.20
+      description: 相对市场共识、前值或原有叙事的偏离程度
+    cross_asset_breadth:
+      weight: 0.15
+      description: 是否影响多个市场、行业或因子
+    persistence:
+      weight: 0.15
+      description: 影响是盘中噪音、数周变化还是结构性变化
+    source_reliability:
+      weight: 0.10
+      description: 来源等级、是否为一手资料及是否有交叉验证
+    novelty:
+      weight: 0.10
+      description: 是否提供此前未知的增量信息
+    verifiability:
+      weight: 0.05
+      description: 是否存在后续数据或价格行为可以验证
+
+routing:
+  daily_core:
+    min_score: 80
+  daily_brief:
+    min_score: 60
+    max_score: 79
+  weekly_candidate:
+    min_score: 60
+  database_only:
+    min_score: 40
+    max_score: 59
+  noise:
+    max_score: 39
+
+hard_rules:
+  - id: unverifiable_single_social_source
+    description: 单一社交媒体来源且无法验证，不得进入日报核心分析
+    max_report_usage: database_only
+  - id: official_policy_or_data_release
+    description: 重大政策或核心经济数据发布，即使初始评分偏低也必须进入人工审核
+    force_review: true
+  - id: correction_or_retraction
+    description: 对已进入报告的信息出现纠正或撤回，必须生成更新事件
+    force_review: true
+  - id: duplicate_without_new_information
+    description: 同一事件无新增事实，不重复进入日报
+    max_report_usage: database_only
+
+human_override:
+  enabled: true
+  require_reason: true
+  store_original_score: true
+  store_final_score: true
