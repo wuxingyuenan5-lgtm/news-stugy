@@ -1,0 +1,79 @@
+version: "0.2"
+
+markets:
+  macro:
+    label: 宏观
+  us_equity:
+    label: 美股
+  china_equity:
+    label: A股与港股
+  precious_metals:
+    label: 贵金属
+  crypto:
+    label: 加密资产
+  energy:
+    label: 能源
+  ai_frontier_tech:
+    label: AI与前沿科技
+
+content_types:
+  data:
+    label: 数据
+    description: 经济数据、市场数据和统计发布
+  policy:
+    label: 政策
+    description: 央行、财政、监管和政府政策
+  company:
+    label: 公司
+    description: 财报、公告、电话会和公司动态
+  industry:
+    label: 产业
+    description: 供需、产能、供应链和产业趋势
+  market:
+    label: 市场
+    description: 价格、资金流、仓位、波动率和市场结构
+  research:
+    label: 研究
+    description: 机构报告、Newsletter和个人观点
+  calendar:
+    label: 日历
+    description: 未来数据、会议、财报和政策节点
+
+importance:
+  high:
+    label: 高
+    description: 应进入报告重点位置
+  medium:
+    label: 中
+    description: 可作为分市场补充
+  low:
+    label: 低
+    description: 归档、观察或忽略
+
+source_levels:
+  A:
+    label: 一手来源
+    description: 官方机构、交易所、公司公告和原始数据
+  B:
+    label: 专业来源
+    description: 主流财经媒体、数据平台和高质量研究机构
+  C:
+    label: 线索来源
+    description: Newsletter、社交媒体、博主和其他观点来源
+
+item_status:
+  - inbox
+  - selected
+  - ignored
+  - published
+
+languages:
+  - en
+  - zh
+  - multilingual
+
+taxonomy_rules:
+  - 第一阶段只使用市场分类和内容类型两个主标签维度
+  - 主题标签先以自由文本记录，不建立庞大固定字典
+  - 同一条信息可以属于多个市场，但只选择一个主要内容类型
+  - 新标签只有在连续使用后才加入正式配置
