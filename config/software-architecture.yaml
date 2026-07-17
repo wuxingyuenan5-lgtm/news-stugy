@@ -1,0 +1,273 @@
+version: '0.1'
+status: design_only
+architecture_style: modular_monolith
+
+runtime:
+  language: python
+  package_layout: src
+  package_name: news_stugy
+  primary_database: sqlite
+  raw_storage: local_filesystem
+  report_format: markdown
+  business_execution: synchronous
+  limited_concurrency: true
+  distributed_queue_required: false
+  vector_database_required: false
+
+repository_roots:
+  config: configuration_only
+  docs: design_and_operations_documentation
+  src/news_stugy: application_source
+  migrations: database_schema_migrations
+  prompts: versioned_prompt_templates
+  templates: deterministic_report_templates
+  tests: automated_tests_and_golden_sets
+  scripts: operator_entry_scripts
+  var: local_runtime_data_gitignored
+  legacy/reference_project: isolated_reference_implementation
+
+modules:
+  domain:
+    responsibility:
+      - entities
+      - value_objects
+      - enums
+      - pure_business_policies
+      - domain_errors
+    may_depend_on: []
+    forbidden:
+      - sql
+      - network
+      - filesystem_writes
+      - ai_clients
+      - environment_variables
+
+  application:
+    responsibility:
+      - use_case_orchestration
+      - transaction_boundaries
+      - retry_and_failure_policy
+      - ports_and_dtos
+    may_depend_on:
+      - domain
+    forbidden:
+      - direct_sql
+      - direct_provider_library_calls
+      - direct_model_client_calls
+      - large_prompt_bodies
+
+  providers:
+    responsibility:
+      - external_content_and_data_access
+      - platform_specific_parsing
+      - raw_response_capture
+      - external_error_normalization
+    may_depend_on:
+      - domain
+      - application.ports
+    forbidden:
+      - report_selection
+      - scoring
+      - clustering
+      - direct_database_commit
+
+  collectors:
+    responsibility:
+      - source_provider_binding_resolution
+      - provider_fallback_chain
+      - provider_attempt_result
+      - collection_coverage
+    may_depend_on:
+      - domain
+      - application.ports
+      - providers
+    forbidden:
+      - ai_analysis
+      - cluster_scoring
+      - report_rendering
+
+  pipeline:
+    responsibility:
+      - normalization
+      - deterministic_filtering
+      - deduplication
+      - item_analysis_orchestration
+      - candidate_retrieval
+      - clustering
+      - event_updates
+      - novelty
+      - scoring
+      - selection
+    may_depend_on:
+      - domain
+      - application.ports
+      - ai.runtime
+    forbidden:
+      - scheduling
+      - final_markdown_rendering
+      - direct_platform_requests
+
+  ai:
+    responsibility:
+      - model_clients
+      - task_routing
+      - prompt_resolution
+      - structured_output_validation
+      - cache_lookup
+      - model_retry_policy
+    may_depend_on:
+      - domain
+      - application.ports
+    forbidden:
+      - direct_database_commit
+      - report_file_publication
+      - provider_selection
+
+  reports:
+    responsibility:
+      - evidence_packets
+      - structured_drafts
+      - core_conclusions
+      - section_assembly
+      - compression
+      - quality_control
+      - deterministic_rendering
+      - publication_service
+    may_depend_on:
+      - domain
+      - application.ports
+      - ai.runtime
+    forbidden:
+      - direct_provider_calls
+      - report_window_scheduling
+      - hidden_content_inference
+
+  storage:
+    responsibility:
+      - repository_implementations
+      - sqlite_unit_of_work
+      - raw_store
+      - artifact_store
+      - report_store
+      - snapshot_store
+    may_depend_on:
+      - domain
+      - application.ports
+    forbidden:
+      - business_selection_rules
+      - provider_fallback_rules
+      - ai_prompt_logic
+
+  scheduler:
+    responsibility:
+      - task_triggers
+      - schedule_resolution
+      - recovery_scan_trigger
+      - cooldown_probe_trigger
+    may_depend_on:
+      - application
+    forbidden:
+      - direct_provider_calls
+      - direct_sql
+      - report_synthesis
+
+  observability:
+    responsibility:
+      - structured_logging
+      - metrics
+      - audit_events
+      - health_views
+    may_depend_on:
+      - domain
+    forbidden:
+      - business_state_mutation
+
+  bootstrap:
+    responsibility:
+      - settings_loading
+      - dependency_wiring
+      - provider_registration
+      - repository_registration
+      - ai_runtime_creation
+    may_depend_on:
+      - domain
+      - application
+      - providers
+      - collectors
+      - pipeline
+      - ai
+      - reports
+      - storage
+      - scheduler
+      - observability
+    forbidden:
+      - business_rules
+
+cross_module_contracts:
+  - SourceSpec
+  - ProviderBindingSpec
+  - CollectionWindow
+  - ProviderRequest
+  - ProviderResponse
+  - DiscoveredItem
+  - AcquiredContent
+  - NormalizedItem
+  - ItemAnalysis
+  - ClusterCandidate
+  - ClusterDecision
+  - NoveltyDecision
+  - ScoreResult
+  - EvidencePacket
+  - StructuredReportDraft
+  - QualityCheckResult
+  - PublicationResult
+
+hard_dependency_rules:
+  - domain_imports_no_project_adapters
+  - providers_do_not_import_reports
+  - reports_do_not_import_concrete_providers
+  - ai_tasks_do_not_write_sqlite
+  - scheduler_calls_application_only
+  - cli_calls_application_only
+  - environment_variables_read_only_in_bootstrap
+  - model_clients_created_only_by_ai_runtime
+  - provider_clients_created_only_by_provider_factory
+
+transaction_boundaries:
+  - provider_attempt
+  - item_state_transition
+  - cluster_update
+  - event_update
+  - report_input_freeze
+  - report_revision_publication
+
+transaction_rules:
+  external_network_inside_write_transaction: false
+  ai_call_inside_write_transaction: false
+  optimistic_input_version_check_before_write: true
+  sqlite_write_concurrency: limited
+
+configuration_loading:
+  stages:
+    - parse_yaml_and_jsonl
+    - schema_validate
+    - validate_cross_file_references
+    - validate_unique_ids
+    - compute_config_hashes
+    - build_immutable_settings
+  arbitrary_python_expression_allowed: false
+  runtime_config_mutation_allowed: false
+
+initial_implementation_order:
+  - project_skeleton
+  - domain_models_and_errors
+  - application_ports_and_dtos
+  - config_loader_and_validation
+  - sqlite_and_repositories
+  - provider_contract_and_reference_adapter
+  - collector_and_provider_attempt
+  - ai_runtime_skeleton
+  - staged_pipeline
+  - report_quality_and_rendering
+  - cli_and_scheduler
+  - golden_set_tests
