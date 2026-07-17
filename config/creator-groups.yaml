@@ -1,0 +1,99 @@
+version: '0.1'
+source_origin: 博主整理(1).ipynb
+groups:
+- id: creator_andrej_karpathy
+  display_name: Andrej Karpathy
+  member_source_ids:
+  - x_karpathy
+  - yt_ucxupkjo5mzqn11pqgivyuvq
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_benjamin_cowen
+  display_name: Benjamin Cowen
+  member_source_ids:
+  - yt_ucrvqjqpseawn-uex-w0xoig
+  - x_benjamincowen
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_crypto_invest_record
+  display_name: Crypto投资记录
+  member_source_ids:
+  - yt_ucbvbpgpixrp9yo_g5zexhiq
+  - x_cryptoinvestrec
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_crypto_punk
+  display_name: 加密庞克
+  member_source_ids:
+  - yt_uceeegbipvkpz23a8_c3i3ua
+  - x_crypto_punkx
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_investment_talk
+  display_name: 投资TALK君
+  member_source_ids:
+  - yt_ucrbrh2qs7ykgmnsmjnj8gcw
+  - x_tj_research
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_li_yijian
+  display_name: 李意坚说
+  member_source_ids:
+  - yt_uc-x-mljozthxadlmspxzrbw
+  - x_yizencap
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_million_eric
+  display_name: 百万Eric
+  member_source_ids:
+  - yt_uc3balqe4dwupxrj9xczykda
+  - x_cyclestudies
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_mrpixel
+  display_name: Mrpixel / 像素先森
+  member_source_ids:
+  - yt_ucuezmv4fqumj4glmelkt-sq
+  - x_mrpixelraf
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_shanghao_jin
+  display_name: Shanghao Jin / Herman Jin
+  member_source_ids:
+  - yt_uctaj0jnr9oyvilu-mtncufq
+  - x_shanghaojin
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_stocktalkwithjay
+  display_name: StockTalkWithJay
+  member_source_ids:
+  - yt_ucfacqaaxkb6ljkeocklbsjq
+  - x_stocktalkjay
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_trader_qianye
+  display_name: Trader qianye
+  member_source_ids:
+  - yt_ucvzczlq_h0kihlg3plifbsw
+  - x_traderqianye
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
+- id: creator_victalk
+  display_name: Vic TALK
+  member_source_ids:
+  - yt_uc0qj2czsaljrivclnudstla
+  - x_victalk6886
+  dedupe_rule: same_creator_same_theme_merge
+  report_rule: one_core_theme_per_report_unless_independent_major_events
+  verification_status: initial_manual_match
