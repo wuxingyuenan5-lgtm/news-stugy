@@ -1,0 +1,255 @@
+version: "0.1"
+status: design_only
+mode: conservative_cluster_update
+
+principles:
+  wrong_merge_cost_higher_than_temporary_duplicate: true
+  similarity_alone_can_merge: false
+  uncertain_merge_action: create_temporary_cluster
+  report_reads_clusters_not_items: true
+  preserve_contradictions: true
+  preserve_original_items: true
+  vector_database_required: false
+
+cluster_types:
+  event:
+    identity_fields:
+      - actors
+      - action
+      - object
+      - time_or_stage
+      - jurisdiction_or_market
+    require_compatible_time_or_stage: true
+    broad_topic_match_sufficient: false
+  opinion:
+    identity_fields:
+      - subject
+      - proposition
+      - horizon
+      - stance
+      - rationale
+    allow_opposing_stances_in_same_cluster: true
+    broad_asset_match_sufficient: false
+  research:
+    identity_fields:
+      - research_question
+      - method_or_framework
+      - original_creator
+      - series_or_document
+    default_new_original_work_to_new_cluster: true
+
+candidate_retrieval:
+  order:
+    - deterministic_keys
+    - persistent_event_or_official_event_id
+    - entity_action_object_filter
+    - time_window_filter
+    - title_keyword_fts
+    - optional_embedding_ranking
+    - structured_pair_classifier
+  max_candidates_per_item: 20
+  embedding:
+    enabled_as_optional_feature: true
+    store_in_processing_artifact: true
+    use_external_vector_database: false
+    auto_merge_by_threshold: false
+  default_windows:
+    breaking_event_hours: 72
+    policy_regulation_days: 30
+    opinion_days: 14
+    long_horizon_opinion_days: 90
+    research_days: 90
+    weekly_primary_days: 7
+    weekly_context_days: 30
+  special_identity_rules:
+    macro_release: same_statistical_period_and_release_batch
+    central_bank_meeting: same_meeting_date_or_official_event_id
+    earnings: same_company_and_fiscal_period
+    auction: same_issuer_tenor_and_auction_date
+    recurring_data: never_merge_across_periods_by_text_similarity_only
+
+relations:
+  duplicate:
+    adds_fact_novelty: false
+    adds_independent_source: false
+    default_update_type: no_change
+  corroboration:
+    adds_fact_novelty: false
+    adds_confirmation: true
+    independent_source_required: true
+    default_update_type: no_change
+  new_detail:
+    adds_information: true
+    default_update_type: minor_detail
+  update:
+    adds_information: true
+    default_update_type: material_update
+  market_reaction:
+    adds_information: true
+    default_update_type: market_confirmation
+  industry_impact:
+    adds_information: true
+    default_update_type: minor_detail
+  commentary:
+    adds_opinion_novelty: true
+    default_update_type: minor_detail
+  contradiction:
+    adds_opinion_novelty: true
+    preserve_side_by_side: true
+    default_update_type: material_update
+  correction:
+    adds_information: true
+    default_update_type: material_update
+  retraction:
+    adds_information: true
+    priority_boost: high
+    default_update_type: reversal
+
+independence_rules:
+  same_original_press_release_is_one_source: true
+  same_anonymous_source_republished_by_many_media_is_not_automatically_independent: true
+  same_creator_cross_platform_is_one_source: true
+  syndication_and_translation_are_not_independent: true
+  independently_obtained_confirmation_can_increase_independent_source_count: true
+
+merge_decision:
+  allowed_decisions:
+    - merge
+    - new_cluster
+    - uncertain
+  automatic_merge_min_confidence: high
+  low_confidence_merge_forbidden: true
+  metadata_only_merge_policy: deterministic_identity_only
+  require_identity_evidence: true
+  structured_output_fields:
+    - decision
+    - cluster_id
+    - cluster_type
+    - primary_relation
+    - confidence
+    - same_real_world_object
+    - identity_evidence
+    - novel_information
+    - changes_core_conclusion
+    - changes_impact
+    - changes_confidence
+    - changes_watchlist
+    - suggested_update_type
+    - reason_summary
+
+materiality_test:
+  material_if_any_changes:
+    - headline_or_lead_sentence
+    - lifecycle_or_official_status
+    - key_amount_ratio_quantity_or_range
+    - effective_date_or_timeline
+    - affected_assets_industries_or_jurisdictions
+    - impact_direction_or_cross_asset_transmission
+    - fact_confidence
+    - urgency_or_expected_duration
+    - report_watchlist
+  minor_if_core_report_unchanged_after_removal: true
+
+update_types:
+  no_change:
+    report_again_daily: false
+  minor_detail:
+    report_again_daily: false
+  material_update:
+    report_again_daily: true
+  reversal:
+    report_again_daily: true
+    priority_boost: high
+    require_before_after_explanation: true
+  market_confirmation:
+    report_again_daily: true
+    require_identifiable_and_persistent_reaction: true
+    allow_confidence:
+      - confirmed
+      - likely
+      - unclear
+    force_causal_claim: false
+
+repeat_reporting:
+  morning_to_evening:
+    allowed_update_types:
+      - material_update
+      - reversal
+      - market_confirmation
+    corroboration_only:
+      repeat_when_prior_confidence_was_insufficient: true
+      repeat_when_already_confirmed: false
+    emphasize_delta_not_old_summary: true
+  cross_day:
+    require_new_material_information: true
+    ongoing_event_alone_is_sufficient: false
+  weekly:
+    require_single_material_update: false
+    allow_cumulative_minor_updates_when_structurally_meaningful: true
+    reconstruct_timeline: true
+    concatenate_daily_summaries: false
+
+canonical_item_selection:
+  event_priority:
+    - official_primary_document
+    - direct_party_or_company_release
+    - complete_high_quality_independent_reporting
+    - accessible_professional_analysis
+    - social_media_lead
+  opinion_research_priority:
+    - full_original_work
+    - creator_full_cross_platform_version
+    - high_quality_interview_or_summary
+    - secondary_excerpt
+  representative_sources_per_cluster:
+    minimum: 1
+    maximum: 3
+    preferred_roles:
+      - primary_source
+      - independent_confirmation_or_context
+      - important_disagreement_or_impact
+
+cross_platform:
+  same_creator_same_theme_merge: true
+  same_creator_counts_as_independent_sources: false
+  prefer_full_content_over_teaser: true
+  x_teaser_plus_youtube_or_wechat_full_content:
+    canonical_preference: full_content
+    teaser_relation: duplicate_or_new_detail
+  same_author_core_themes_per_report: 1
+  allow_multiple_when_independent_major_events: true
+
+cluster_repair:
+  merge_supported: true
+  split_supported: true
+  preserve_old_id_redirects: true
+  recalculate_relations_and_counts: true
+  silently_rewrite_published_reports: false
+  issue_correction_in_future_report_when_material: true
+
+cluster_lifecycle:
+  statuses:
+    - active
+    - closed
+    - archived
+  close_when_one_off_event_complete: true
+  persistent_event_can_remain_active_after_cluster_closed: true
+
+quality_metrics:
+  - exact_duplicate_compression_rate
+  - near_duplicate_merge_rate
+  - sampled_false_merge_rate
+  - sampled_missed_merge_rate
+  - duplicate_corroboration_confusion_cases
+  - morning_evening_redundant_repeat_rate
+  - material_update_accuracy
+  - average_items_per_cluster
+  - average_independent_sources_per_cluster
+  - cluster_split_and_correction_count
+  - weekly_evolution_quality
+
+automation:
+  human_review_required_for_normal_run: false
+  save_auditable_fields_not_private_reasoning: true
+  cache_model_and_prompt_versions: true
+  fail_closed_on_unsupported_fact: true
