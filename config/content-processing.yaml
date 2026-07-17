@@ -1,0 +1,147 @@
+version: '0.1'
+mode: staged_cluster_pipeline
+status: design_only
+
+stage_order:
+  - discovery
+  - acquisition
+  - normalization
+  - deterministic_filtering
+  - exact_deduplication
+  - item_analysis
+  - candidate_retrieval
+  - cluster_update
+  - event_update
+  - novelty_classification
+  - scoring
+  - report_selection
+  - report_synthesis
+  - quality_control
+  - publication
+
+content_access:
+  complete:
+    detailed_summary_allowed: true
+  partial:
+    detailed_summary_allowed: true
+    require_scope_disclosure: true
+  metadata_only:
+    detailed_summary_allowed: false
+    discovery_lead_only: true
+  unavailable:
+    usable_for_report: false
+
+platform_rules:
+  x:
+    include_replies_to_others: false
+    include_self_threads: true
+    include_reposts: true
+    include_quotes: true
+    pure_repost_standalone_opinion: false
+    merge_threads: true
+  wechat:
+    include_image_content: true
+    skip_paid_or_advertorial: true
+    preserve_education_content: true
+    title_only_summary_forbidden: true
+  youtube:
+    exclude_live: true
+    exclude_live_replays: true
+    exclude_shorts: true
+    transcript_order:
+      - manual_caption
+      - auto_caption
+      - audio_asr
+    title_only_summary_forbidden: true
+    long_content_chunking: true
+  media:
+    bypass_paywall: false
+    infer_hidden_content: false
+
+exact_deduplication_order:
+  - platform_source_external_id
+  - canonical_url
+  - raw_content_hash
+  - source_published_at_normalized_title
+  - normalized_content_hash
+
+item_analysis_output:
+  - language
+  - content_nature
+  - summary
+  - facts
+  - opinions
+  - forecasts
+  - data_points
+  - entities
+  - markets
+  - topics
+  - time_horizon
+  - promotional_ratio
+  - quality_flags
+
+cluster_types:
+  - event
+  - opinion
+  - research
+
+cluster_relations:
+  - duplicate
+  - corroboration
+  - new_detail
+  - update
+  - market_reaction
+  - industry_impact
+  - commentary
+  - contradiction
+
+novelty_types:
+  no_change:
+    repeat_report: false
+  minor_detail:
+    repeat_report: false
+  material_update:
+    repeat_report: true
+  reversal:
+    repeat_report: true
+  market_confirmation:
+    repeat_report: true
+
+selection_rules:
+  platform_quota: false
+  market_quota: false
+  allow_empty_sections: true
+  metadata_only_detailed_content: false
+  one_core_theme_per_creator: true
+  education_default_report: weekly
+  trading_view_threshold: elevated
+  no_padding: true
+
+model_routing:
+  lightweight_tasks:
+    - language_detection
+    - relevance_screening
+    - content_nature_classification
+    - basic_entity_extraction
+    - candidate_similarity_screening
+  strong_model_tasks:
+    - long_content_synthesis
+    - fact_opinion_split
+    - cluster_synthesis
+    - novelty_classification
+    - contradiction_handling
+    - major_event_impact_analysis
+    - final_report_synthesis
+    - quality_repair
+  visual_model_only_when_material: true
+  cache_by_input_hash_and_prompt_version: true
+
+quality_control:
+  require_source_for_material_fact: true
+  forbid_opinion_as_fact: true
+  forbid_title_based_hidden_content_inference: true
+  verify_report_window: true
+  verify_cross_report_repeat: true
+  verify_independent_source_count: true
+  allow_partial_report_on_local_failures: true
+  fail_closed_on_unsupported_fact: true
