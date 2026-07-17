@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Local data and databases
+data/raw/
+data/processed/
+data/private/
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated reports and exports
+reports/generated/
+data/exports/
+
+# Model and API caches
+.cache/
+models/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Keep directory placeholders
+!data/**/.gitkeep
+!reports/generated/.gitkeep
