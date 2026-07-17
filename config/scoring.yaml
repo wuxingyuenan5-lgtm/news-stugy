@@ -1,60 +1,36 @@
-version: "0.1"
+version: "0.2"
 
-importance_score:
-  range: [0, 100]
-  dimensions:
-    market_impact:
-      weight: 0.25
-      description: 对价格、政策预期或企业盈利的潜在影响
-    expectation_surprise:
-      weight: 0.20
-      description: 相对市场共识、前值或原有叙事的偏离程度
-    cross_asset_breadth:
-      weight: 0.15
-      description: 是否影响多个市场、行业或因子
-    persistence:
-      weight: 0.15
-      description: 影响是盘中噪音、数周变化还是结构性变化
-    source_reliability:
-      weight: 0.10
-      description: 来源等级、是否为一手资料及是否有交叉验证
-    novelty:
-      weight: 0.10
-      description: 是否提供此前未知的增量信息
-    verifiability:
-      weight: 0.05
-      description: 是否存在后续数据或价格行为可以验证
+# 第一阶段不使用0至100分模型，只保留高、中、低三级人工判断。
 
-routing:
-  daily_core:
-    min_score: 80
-  daily_brief:
-    min_score: 60
-    max_score: 79
-  weekly_candidate:
-    min_score: 60
-  database_only:
-    min_score: 40
-    max_score: 59
-  noise:
-    max_score: 39
+importance:
+  high:
+    report_usage: daily_core
+    guidance:
+      - 重大政策、核心经济数据或公司公告
+      - 对多个市场或当前重点主题有明显影响
+      - 相比此前出现明确新增信息
+      - 未来数日仍需要持续跟踪
+  medium:
+    report_usage: market_brief
+    guidance:
+      - 对单一市场或行业有参考价值
+      - 可补充重要事件背景
+      - 高质量机构研究或非共识线索
+  low:
+    report_usage: archive_or_ignore
+    guidance:
+      - 信息重复或缺乏新增事实
+      - 只有泛泛观点，没有可靠证据
+      - 与当前覆盖范围关系较弱
+      - 短期噪音或事后归因
 
 hard_rules:
-  - id: unverifiable_single_social_source
-    description: 单一社交媒体来源且无法验证，不得进入日报核心分析
-    max_report_usage: database_only
-  - id: official_policy_or_data_release
-    description: 重大政策或核心经济数据发布，即使初始评分偏低也必须进入人工审核
-    force_review: true
-  - id: correction_or_retraction
-    description: 对已进入报告的信息出现纠正或撤回，必须生成更新事件
-    force_review: true
-  - id: duplicate_without_new_information
-    description: 同一事件无新增事实，不重复进入日报
-    max_report_usage: database_only
+  - 无原始来源或可靠出处的事实不得进入报告重点部分
+  - 同一内容被多家媒体转载时优先保留原始来源或质量最高的报道
+  - 已经写过且没有新增进展的信息不重复进入日报
+  - 社交媒体内容原则上只能作为线索，重要事实需要进一步验证
+  - 重大官方数据、政策和公告必须进入人工审核
 
-human_override:
-  enabled: true
-  require_reason: true
-  store_original_score: true
-  store_final_score: true
+human_review:
+  required: true
+  notes: 最终是否进入报告由人工决定，不要求记录复杂覆盖理由。
