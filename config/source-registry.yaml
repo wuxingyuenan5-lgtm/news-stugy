@@ -1,0 +1,69 @@
+version: '0.1'
+status: design_only
+source_origin: 博主整理(1).ipynb
+
+inventory_summary:
+  input_rows: 374
+  unique_sources_after_deduplication: 361
+  duplicate_rows_removed: 13
+  by_group:
+    youtube_finance: 78
+    youtube_ai: 22
+    x_creators: 158
+    wechat_finance: 102
+    other_social: 1
+  initial_priority:
+    core: 75
+    supplementary: 58
+    observe: 228
+  user_importance_signal:
+    high: 100
+    ambiguous: 6
+    normal: 255
+
+registry_files:
+  creator_groups: config/creator-groups.yaml
+  youtube_ai: config/sources/youtube-ai.yaml
+  youtube_finance_core: config/sources/youtube-finance-core.jsonl
+  x_core: config/sources/x-core.jsonl
+  wechat_core: config/sources/wechat-core.jsonl
+
+activation_policy:
+  collectors_enabled: false
+  reason: 当前阶段只完成需求、架构和来源治理设计，尚未开始正式采集代码与定时运行。
+  initial_trial_scope:
+    - youtube_finance_core
+    - x_core
+    - wechat_core
+    - youtube_ai_supplementary
+  deferred_inventory:
+    youtube_finance_supplementary_and_observe: 65
+    x_supplementary_and_observe: 120
+    wechat_supplementary_and_observe: 78
+    youtube_ai_observe: 18
+    other_social_pending_collector: 1
+
+staged_activation:
+  stage_0_design:
+    description: 只维护配置、去重结果、跨平台关联与审核队列，不执行采集。
+  stage_1_provider_validation:
+    description: 使用核心来源测试免费Provider成功率、时间准确率、正文完整率与回补能力。
+  stage_2_core_trial:
+    description: 仅核心来源参与手工和半自动试运行。
+  stage_3_supplementary_batch:
+    description: 按平台分批加入supplementary来源，避免一次性放大抓取与AI处理量。
+  stage_4_observe_rotation:
+    description: observe来源采用轮换低频验证，不要求全部长期活跃采集。
+
+priority_interpretation:
+  core: 用户明确重视或具有关键事实、数据、研究和跨资产价值；仍不保证内容进入报告。
+  supplementary: 有价值但更偏技术、方法、细分主题、长周期内容或与核心来源重复较多。
+  observe: 尚未验证长期价值、噪音可能较高或缺少明确用户重要标记。
+
+hard_rules:
+  - 星号是重要信号，不是自动入选和永久核心规则。
+  - 公众号中的付费、广告和软文跳过，但知识科普、量化方法和图片文章不应机械过滤。
+  - YouTube排除直播、直播回放和Shorts，并跳过纯推广或生活内容。
+  - X排除对他人的普通回复，保留作者自回复线程、引用和转发关系。
+  - 所有账号、频道和种子链接在正式启用前都必须经过真实访问验证。
+  - 登记在Registry不代表已启用；实际启用由SourceProviderBinding与部署阶段共同决定。
