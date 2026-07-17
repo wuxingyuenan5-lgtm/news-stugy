@@ -1,36 +1,158 @@
-version: "0.2"
+version: "0.3"
 
-# 第一阶段不使用0至100分模型，只保留高、中、低三级人工判断。
+mode: automated_cluster_scoring
+score_target: cluster
 
-importance:
-  high:
-    report_usage: daily_core
-    guidance:
-      - 重大政策、核心经济数据或公司公告
-      - 对多个市场或当前重点主题有明显影响
-      - 相比此前出现明确新增信息
-      - 未来数日仍需要持续跟踪
-  medium:
-    report_usage: market_brief
-    guidance:
-      - 对单一市场或行业有参考价值
-      - 可补充重要事件背景
-      - 高质量机构研究或非共识线索
-  low:
-    report_usage: archive_or_ignore
-    guidance:
-      - 信息重复或缺乏新增事实
-      - 只有泛泛观点，没有可靠证据
-      - 与当前覆盖范围关系较弱
-      - 短期噪音或事后归因
+# 评分对象是完成去重和合并后的事件簇或观点簇，不直接对单条转载内容排序。
+# 总分用于候选分层，不构成机械入选规则；强制事件、重大例外、来源可靠性和报告篇幅仍需单独判断。
 
-hard_rules:
+daily_weights:
+  market_impact: 25
+  information_novelty: 20
+  source_quality: 15
+  timeliness: 15
+  cross_asset_relevance: 10
+  user_focus_match: 10
+  evidence_quality: 5
+
+weekly_weights:
+  structural_importance: 20
+  theme_persistence: 20
+  weekly_evolution: 15
+  cross_asset_relevance: 15
+  evidence_quality: 15
+  user_focus_match: 10
+  novelty: 5
+
+score_scale:
+  minimum: 0
+  maximum: 100
+  dimension_levels:
+    0: 无价值或无法判断
+    1: 较弱
+    2: 一般
+    3: 明显
+    4: 较强
+    5: 极强
+
+candidate_bands:
+  core:
+    minimum_score: 75
+    report_usage: core_event
+    description: 优先进入核心结论或核心事件，但仍需通过事实可靠性检查
+  attention:
+    minimum_score: 55
+    maximum_score: 74
+    report_usage: supporting_section
+    description: 进入重点观点、分市场补充或其他值得浏览
+  browse:
+    minimum_score: 40
+    maximum_score: 54
+    report_usage: other_worth_reading
+    description: 仅在信息有明确增量且篇幅允许时简短保留
+  archive:
+    maximum_score: 39
+    report_usage: storage_only
+    description: 保存原始内容和分析结果，不进入报告
+
+hard_filters:
+  - 发布时间不属于对应报告窗口
+  - X回复
+  - YouTube直播或Shorts
+  - 完全重复内容
+  - 纯转发且没有新增评论
+  - 纯生活、营销、招生、抽奖或没有研究价值的推广内容
+  - 只有标题且无法取得足以支持摘要的正文、转写或有效元数据
+  - 与覆盖市场及研究主题无关
+  - 只有价格涨跌播报，没有新增事实、原因或分析
+  - 已进入此前报告且没有实质更新
+
+fact_reliability_rules:
   - 无原始来源或可靠出处的事实不得进入报告重点部分
-  - 同一内容被多家媒体转载时优先保留原始来源或质量最高的报道
-  - 已经写过且没有新增进展的信息不重复进入日报
-  - 社交媒体内容原则上只能作为线索，重要事实需要进一步验证
-  - 重大官方数据、政策和公告必须进入人工审核
+  - 政策、监管、经济数据和公司公告优先回溯官方来源
+  - 社交媒体默认是线索来源，重大事实需由官方来源或高质量独立来源确认
+  - 付费墙或内容不可访问时不得根据标题推断正文观点
+  - YouTube无字幕时应优先使用自动字幕或音频转写，不得仅根据标题生成内容摘要
+  - 无法确认因果关系时使用“可能驱动之一”或“影响暂不明确”
 
-human_review:
-  required: true
-  notes: 最终是否进入报告由人工决定，不要求记录复杂覆盖理由。
+content_nature_rules:
+  fact:
+    minimum_evidence_level: 2
+    guidance: 说明已经发生并可核实的事实
+  data:
+    minimum_evidence_level: 2
+    guidance: 保存口径、实际值、预期值、前值和发布时间
+  analysis:
+    minimum_evidence_level: 2
+    guidance: 需要清晰逻辑或数据支撑，不能只是复述新闻
+  opinion:
+    minimum_evidence_level: 1
+    guidance: 明确标记为作者观点，不得包装为事实
+  forecast:
+    minimum_evidence_level: 2
+    guidance: 优先保留包含时间周期、依据和失效条件的预测
+  trading_view:
+    minimum_evidence_level: 2
+    guidance: 默认高门槛，不作为报告主体
+  education:
+    minimum_evidence_level: 1
+    guidance: 日报降权，周报研究与方法栏目可提高权重
+
+cluster_rules:
+  - 完全重复只保留一个展示记录，原始记录仍全部归档
+  - 转载或编译内容合并为同一事件簇，优先选择原始来源或质量最高的报道
+  - 同一事件的新增细节、市场反应和产业影响应合并提取，不应简单删除
+  - 相近观点可以归纳共同结论，但必须保留重要分歧
+  - 相反观点标记为contradiction并并列展示，不进行平均化
+  - 来源数量代表传播度或确认度，不直接等于事件重要性
+  - 同时记录source_count和independent_source_count
+
+repeat_reporting:
+  no_change:
+    report_again: false
+  minor_detail:
+    report_again: false
+  material_update:
+    report_again: true
+  reversal:
+    report_again: true
+    priority_boost: high
+  market_confirmation:
+    report_again: true
+
+mandatory_candidate_checks:
+  - 重大央行决议和流动性政策
+  - 核心经济数据明显偏离预期
+  - 重大财政、关税、贸易和金融监管政策
+  - 系统性金融风险或主要市场交易规则变化
+  - 重大加密监管、ETF、稳定币、交易所和托管事件
+  - 重大商品供给中断、制裁、出口限制和产业政策
+  - 重大AI芯片限制、资本开支、供应瓶颈和关键公司指引
+  - 此前报告核心判断被正式证伪、撤回或反转
+
+report_selection:
+  use_minimum_counts: false
+  same_author_core_limit: 1
+  representative_sources_per_cluster: 3
+  prefer_information_value_over_platform_balance: true
+  allow_short_report_when_information_is_weak: true
+
+impact_confidence:
+  confirmed:
+    description: 数据、时间反应和高质量来源均支持该解释
+  likely:
+    description: 时间与逻辑吻合，但可能同时存在其他驱动
+  unclear:
+    description: 市场反应有限、方向混杂或无法分离多个事件影响
+
+source_priority_adjustment:
+  core: 0
+  supplementary: -3
+  observe: -8
+  notes: 来源分级只调整候选门槛，不保证核心来源自动入选
+
+automation:
+  human_review_required: false
+  save_structured_reasoning_fields: true
+  fail_closed_on_unsupported_fact: true
+  generate_report_when_some_sources_fail: true
