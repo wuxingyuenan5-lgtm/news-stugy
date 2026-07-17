@@ -1,174 +1,79 @@
-version: "0.1"
+version: "0.2"
 
-asset_classes:
+markets:
   macro:
     label: 宏观
-    subtopics:
-      - growth
-      - inflation
-      - employment
-      - monetary_policy
-      - fiscal_policy
-      - liquidity
-      - credit
-      - fx
-      - rates
   us_equity:
     label: 美股
-    subtopics:
-      - earnings
-      - valuation
-      - breadth
-      - positioning
-      - buybacks
-      - sectors
-      - mega_cap_tech
   china_equity:
     label: A股与港股
-    subtopics:
-      - policy
-      - credit_impulse
-      - property
-      - consumption
-      - manufacturing
-      - sectors
-      - southbound_northbound
-      - liquidity
   precious_metals:
     label: 贵金属
-    subtopics:
-      - gold
-      - silver
-      - platinum_group
-      - real_yield
-      - central_bank_demand
-      - etf_flow
-      - futures_positioning
-      - physical_premium
   crypto:
     label: 加密资产
-    subtopics:
-      - bitcoin
-      - ethereum
-      - altcoins
-      - etf_flow
-      - stablecoins
-      - derivatives
-      - onchain
-      - treasury_companies
-      - regulation
   energy:
     label: 能源
-    subtopics:
-      - crude_oil
-      - refined_products
-      - natural_gas
-      - coal
-      - uranium
-      - power
-      - opec
-      - inventories
-      - refining
   ai_frontier_tech:
     label: AI与前沿科技
-    subtopics:
-      - hyperscaler_capex
-      - semiconductors
-      - gpu
-      - advanced_process
-      - memory
-      - networking
-      - optical
-      - data_center
-      - power_cooling
-      - ai_software
-      - robotics
-      - autonomous_driving
-      - biotech
 
-state_variables:
-  growth:
-    label: 增长
-  inflation:
-    label: 通胀
-  liquidity:
-    label: 流动性
-  monetary_policy:
-    label: 货币政策
-  fiscal_policy:
-    label: 财政政策
-  risk_appetite:
-    label: 风险偏好
-  flow_positioning:
-    label: 资金流与仓位
-  supply_shock:
-    label: 供给冲击
-  earnings:
-    label: 盈利
-  valuation:
-    label: 估值
-  regulation:
-    label: 监管
-  geopolitics:
-    label: 地缘政治
-  technology_cycle:
-    label: 技术周期
+content_types:
+  data:
+    label: 数据
+    description: 经济数据、市场数据和统计发布
+  policy:
+    label: 政策
+    description: 央行、财政、监管和政府政策
+  company:
+    label: 公司
+    description: 财报、公告、电话会和公司动态
+  industry:
+    label: 产业
+    description: 供需、产能、供应链和产业趋势
+  market:
+    label: 市场
+    description: 价格、资金流、仓位、波动率和市场结构
+  research:
+    label: 研究
+    description: 机构报告、Newsletter和个人观点
+  calendar:
+    label: 日历
+    description: 未来数据、会议、财报和政策节点
 
-regions:
-  - global
-  - united_states
-  - china
-  - eurozone
-  - japan
-  - emerging_markets
-  - middle_east
+importance:
+  high:
+    label: 高
+    description: 应进入报告重点位置
+  medium:
+    label: 中
+    description: 可作为分市场补充
+  low:
+    label: 低
+    description: 归档、观察或忽略
 
-impact_direction:
-  - strongly_bullish
-  - bullish
-  - neutral
-  - bearish
-  - strongly_bearish
-  - mixed
-  - uncertain
+source_levels:
+  A:
+    label: 一手来源
+    description: 官方机构、交易所、公司公告和原始数据
+  B:
+    label: 专业来源
+    description: 主流财经媒体、数据平台和高质量研究机构
+  C:
+    label: 线索来源
+    description: Newsletter、社交媒体、博主和其他观点来源
 
-impact_horizon:
-  - intraday
-  - days
-  - weeks
-  - months
-  - structural
+item_status:
+  - inbox
+  - selected
+  - ignored
+  - published
 
-source_tiers:
-  tier_1:
-    label: 一手官方与原始数据
-    default_trust_score: 95
-  tier_2:
-    label: 专业媒体与数据平台
-    default_trust_score: 85
-  tier_3:
-    label: 机构研究与行业分析
-    default_trust_score: 75
-  tier_4:
-    label: 社交媒体与个人观点
-    default_trust_score: 45
+languages:
+  - en
+  - zh
+  - multilingual
 
-event_status:
-  - new
-  - developing
-  - updated
-  - corrected
-  - resolved
-
-review_status:
-  - pending
-  - accepted
-  - revised
-  - rejected
-
-report_usage:
-  - daily_core
-  - daily_brief
-  - weekly_candidate
-  - database_only
-  - noise
+taxonomy_rules:
+  - 第一阶段只使用市场分类和内容类型两个主标签维度
+  - 主题标签先以自由文本记录，不建立庞大固定字典
+  - 同一条信息可以属于多个市场，但只选择一个主要内容类型
+  - 新标签只有在连续使用后才加入正式配置
