@@ -1,6 +1,11 @@
-version: '0.1'
+version: '0.2'
 mode: staged_cluster_pipeline
 status: design_only
+
+policy_references:
+  clustering_and_novelty: config/clustering-novelty.yaml
+  scoring: config/scoring.yaml
+  event_monitoring: config/event-monitoring.yaml
 
 stage_order:
   - discovery
@@ -74,9 +79,15 @@ item_analysis_output:
   - forecasts
   - data_points
   - entities
+  - actors
+  - actions
+  - objects
+  - event_stage
   - markets
   - topics
   - time_horizon
+  - catalysts
+  - invalidation_conditions
   - promotional_ratio
   - quality_flags
 
@@ -94,6 +105,8 @@ cluster_relations:
   - industry_impact
   - commentary
   - contradiction
+  - correction
+  - retraction
 
 novelty_types:
   no_change:
@@ -106,6 +119,15 @@ novelty_types:
     repeat_report: true
   market_confirmation:
     repeat_report: true
+
+candidate_retrieval:
+  vector_database_required: false
+  deterministic_identity_first: true
+  max_candidates_per_item: 20
+  optional_embedding_ranking: true
+  embedding_auto_merge: false
+  structured_pair_classifier_required: true
+  uncertain_merge_action: create_temporary_cluster
 
 selection_rules:
   platform_quota: false
@@ -127,9 +149,11 @@ model_routing:
   strong_model_tasks:
     - long_content_synthesis
     - fact_opinion_split
+    - cluster_relation_classification
     - cluster_synthesis
     - novelty_classification
     - contradiction_handling
+    - correction_and_retraction_handling
     - major_event_impact_analysis
     - final_report_synthesis
     - quality_repair
@@ -143,5 +167,7 @@ quality_control:
   verify_report_window: true
   verify_cross_report_repeat: true
   verify_independent_source_count: true
+  verify_cluster_identity_fields: true
+  verify_delta_is_explicit_on_repeat: true
   allow_partial_report_on_local_failures: true
   fail_closed_on_unsupported_fact: true
