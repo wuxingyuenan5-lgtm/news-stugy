@@ -1,0 +1,451 @@
+version: "0.1"
+
+guide: docs/event-monitoring-guide.md
+mode: advisory
+
+policy:
+  force_include_any_category: false
+  allow_unlisted_material_events: true
+  require_material_update_for_repeat_reporting: true
+  prefer_official_confirmation: true
+  social_media_is_lead_source_by_default: true
+
+recommendation_levels:
+  high:
+    candidate_priority: 3
+    description: 建议持续监控，出现实质进展时优先评估
+  medium:
+    candidate_priority: 2
+    description: 建议监控，有明显增量或市场影响时纳入
+  low:
+    candidate_priority: 1
+    description: 默认不进入正文，重大例外时处理
+  not_recommended:
+    candidate_priority: 0
+    description: 第一版不主动监控，仅保留重大例外通道
+
+source_priority:
+  - official_document
+  - official_agency
+  - exchange_or_company_announcement
+  - primary_professional_media
+  - professional_data_provider
+  - vertical_media_or_research
+  - creator_or_social_media
+  - repost_or_unverified_lead
+
+event_statuses:
+  - rumor
+  - proposal
+  - consultation
+  - review
+  - approved
+  - enacted
+  - effective
+  - implementation
+  - enforcement
+  - reversed
+
+repeat_report_update_types:
+  no_change:
+    report_again: false
+  minor_detail:
+    report_again: false
+  material_update:
+    report_again: true
+  reversal:
+    report_again: true
+  market_confirmation:
+    report_again: true
+
+categories:
+  macro_data:
+    label: 核心宏观数据
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - us_equity
+      - china_equity
+      - precious_metals
+      - crypto
+      - energy
+    examples:
+      - 通胀、就业、经济增长与消费数据
+      - 中国信贷、社融、工业与房地产数据
+      - 重大历史数据修正
+
+  central_bank_and_liquidity:
+    label: 央行、流动性与金融条件
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - us_equity
+      - china_equity
+      - precious_metals
+      - crypto
+    examples:
+      - 利率决议与政策路径变化
+      - 资产负债表和流动性工具
+      - 对金融条件有实质影响的重要讲话
+
+  fiscal_and_sovereign_funding:
+    label: 财政政策与主权融资
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - us_equity
+      - china_equity
+      - precious_metals
+      - crypto
+    examples:
+      - 财政刺激和政府支出
+      - 债务上限与政府停摆
+      - 重大国债发行安排
+
+  financial_regulation:
+    label: 金融监管
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - us_equity
+      - china_equity
+      - crypto
+    examples:
+      - 银行与非银监管
+      - 市场交易规则重大变化
+      - 资本、流动性和风险管理要求
+
+  financial_stability:
+    label: 金融稳定与系统性风险
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - us_equity
+      - china_equity
+      - precious_metals
+      - crypto
+      - energy
+    examples:
+      - 银行、券商、清算或大型非银机构风险
+      - 重大违约、挤兑和流动性冻结
+      - 主权信用和跨市场传染风险
+
+  tariffs_trade_and_sanctions:
+    label: 关税、贸易限制与制裁
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - china_equity
+      - precious_metals
+      - energy
+      - ai_frontier_tech
+    examples:
+      - 影响铜、锂、能源和半导体的关税
+      - 出口限制、进口禁令和配额
+      - 重大制裁与反制措施
+
+  geopolitical_and_logistics:
+    label: 地缘政治与关键物流
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - macro
+      - precious_metals
+      - energy
+      - us_equity
+      - crypto
+    examples:
+      - 军事冲突明显升级
+      - 重要航道、港口和能源设施中断
+      - 重大停火、谈判或政策反转
+
+  crypto_regulation_framework:
+    label: 加密立法与监管框架
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - crypto
+      - us_equity
+      - macro
+    examples:
+      - 证券与商品属性认定
+      - 市场结构、发行与披露规则
+      - DeFi、质押、借贷和衍生品监管
+
+  stablecoin_regulation:
+    label: 稳定币监管
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - crypto
+      - macro
+    examples:
+      - 发行资质与准入
+      - 储备资产、审计与赎回规则
+      - 银行发行、跨境支付和反洗钱要求
+
+  crypto_etf_and_institutional_access:
+    label: 加密ETF与机构准入
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - crypto
+      - us_equity
+    examples:
+      - ETF申请、延期、批准与拒绝
+      - 实物申赎、质押、期权和托管规则
+      - 银行、养老金和资管机构准入变化
+
+  crypto_exchange_custody_and_licensing:
+    label: 加密交易所、托管与牌照
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - crypto
+      - us_equity
+    examples:
+      - 主要交易所和托管机构牌照变化
+      - 客户资产隔离和储备证明规则
+      - 杠杆、衍生品和零售限制
+
+  crypto_enforcement_and_litigation:
+    label: 加密执法、诉讼与司法裁决
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - crypto
+      - us_equity
+    examples:
+      - 主要监管机构执法
+      - 具有行业先例意义的司法裁决
+      - 重大和解、处罚、撤诉和上诉结果
+
+  crypto_banking_tax_and_accounting:
+    label: 加密银行准入、税务与会计
+    recommendation: medium
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - crypto
+      - us_equity
+      - macro
+    examples:
+      - 银行托管、结算和交易业务规则
+      - 企业持币会计处理
+      - 对机构和企业财库影响明显的税务变化
+
+  commodity_supply_disruption:
+    label: 商品重大供给中断
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - precious_metals
+      - energy
+      - china_equity
+    examples:
+      - 重要矿山、油气田停产与复产
+      - 罢工、事故和可量化产量调整
+      - OPEC政策与战略储备变化
+
+  commodity_industry_and_capacity:
+    label: 商品产业政策与产能
+    recommendation: medium
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - precious_metals
+      - energy
+      - china_equity
+    examples:
+      - 铜、锂、黄金、能源重大产能变化
+      - 环保、审批和资源政策
+      - 交割、仓储和保证金规则重大调整
+
+  ai_semiconductor_policy:
+    label: AI芯片与半导体政策
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - ai_frontier_tech
+      - us_equity
+      - china_equity
+      - macro
+    examples:
+      - AI芯片和半导体设备出口限制
+      - 产业补贴、投资限制和技术管制
+      - 影响先进制程、GPU和存储的政策
+
+  ai_capex_and_infrastructure:
+    label: AI资本开支与基础设施
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - ai_frontier_tech
+      - us_equity
+      - energy
+    examples:
+      - 大型云厂商和AI公司资本开支
+      - GPU、存储、数据中心和电力瓶颈
+      - 大型融资、采购、供应协议和项目延期
+
+  ai_model_and_product_release:
+    label: AI重大模型与产品发布
+    recommendation: medium
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - ai_frontier_tech
+      - us_equity
+    examples:
+      - 显著改变模型能力或成本的发布
+      - 直接影响上市公司和算力需求的产品
+      - 引发明确市场定价或监管反应的发布
+
+  ai_regulation_copyright_and_data:
+    label: AI监管、版权与数据政策
+    recommendation: medium
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - ai_frontier_tech
+      - us_equity
+      - china_equity
+    examples:
+      - 模型训练和数据获取规则
+      - 版权责任与企业部署政策
+      - 跨境技术服务和数据限制
+
+  key_company_earnings_and_guidance:
+    label: 关键公司财报与指引
+    recommendation: high
+    default_monitoring: true
+    allow_material_exception: true
+    affected_markets:
+      - us_equity
+      - china_equity
+      - ai_frontier_tech
+      - energy
+      - crypto
+    examples:
+      - 大型云厂商与半导体公司财报
+      - 影响AI资本开支和供应链的指引
+      - 对主要指数或行业有明显外溢的业绩变化
+
+  ordinary_company_news:
+    label: 普通公司新闻
+    recommendation: low
+    default_monitoring: false
+    allow_material_exception: true
+    examples:
+      - 普通合作、融资和人事公告
+      - 不影响主要指数、行业供需或当前主题的公司动态
+
+  token_unlock:
+    label: 普通代币解锁
+    recommendation: not_recommended
+    default_monitoring: false
+    allow_material_exception: true
+    exceptions:
+      - 规模足以显著改变主要资产流动性
+      - 引发系统性风险或跨市场影响
+
+  blockchain_hard_fork:
+    label: 常规区块链硬分叉
+    recommendation: not_recommended
+    default_monitoring: false
+    allow_material_exception: true
+    exceptions:
+      - 影响BTC或ETH安全、供给或市场结构
+      - 产生系统性风险或重大监管影响
+
+  protocol_upgrade:
+    label: 普通协议升级
+    recommendation: not_recommended
+    default_monitoring: false
+    allow_material_exception: true
+    exceptions:
+      - 影响主要稳定币、交易所、ETF或系统性流动性
+      - 引发显著价格波动或安全事故
+
+  airdrop_points_and_marketing:
+    label: 空投、积分与项目营销
+    recommendation: not_recommended
+    default_monitoring: false
+    allow_material_exception: false
+
+  ordinary_listing_and_delisting:
+    label: 普通上币与下币
+    recommendation: not_recommended
+    default_monitoring: false
+    allow_material_exception: true
+    exceptions:
+      - 涉及主要交易所系统性风险
+      - 涉及BTC、ETH或主要稳定币市场结构
+
+  small_project_governance:
+    label: 小型项目治理投票
+    recommendation: not_recommended
+    default_monitoring: false
+    allow_material_exception: false
+
+material_exception_rules:
+  any_of:
+    - 影响BTC、ETH或主要稳定币的安全、供给或市场结构
+    - 导致主要交易所、托管机构或金融机构发生系统性风险
+    - 引发显著价格波动、流动性变化或跨市场传染
+    - 改变ETF、监管、机构准入、税务或会计处理
+    - 获得官方机构或多个高质量独立来源确认
+    - 与当前核心主线高度相关且提供明显新增信息
+
+report_usage:
+  scheduled_events:
+    sections:
+      - 今日关注
+      - 今晚及明晨关注
+      - 下周关注
+  occurred_events:
+    sections:
+      - 核心事件
+      - 市场主线
+      - 宏观数据与事件复盘
+  minor_updates:
+    action: update_storage_only
+  contradictory_views:
+    action: present_side_by_side
+
+maintenance:
+  review_cycle_weeks: 2-4
+  metrics:
+    - collected_count
+    - report_selected_count
+    - duplicate_rate
+    - low_value_rate
+    - omission_cases
+    - source_failure_rate
+  workflow:
+    - 修改推荐指南并说明理由
+    - 更新变更记录
+    - 再修改运行配置
+    - 观察两个至四个星期
+    - 复盘实际报告质量
