@@ -1,6 +1,6 @@
 # 跨资产信息简报系统数据模型 V1
 
-> 当前版本：0.4  
+> 当前版本：0.5  
 > 当前阶段：需求与架构设计  
 > 存储方案：SQLite结构化状态 + JSON/Text原始内容 + Markdown报告
 
@@ -13,12 +13,14 @@
 - 区分来源没有更新与Provider抓取失败；
 - 增量采集、历史回补、限流冷却和失败重试；
 - 原始内容、字幕、图片解析和行情数据统一追溯；
-- 精确去重、近似重复、事件簇与观点簇；
+- 精确去重、近似重复、事件簇、观点簇和研究簇；
+- Cluster合并、拆分、更正、撤回和版本演变；
 - 早报、晚报和周报跨期防重复；
-- 政策与重要事件状态跟踪；
+- 政策与重要事件生命周期跟踪；
 - 行情快照、宏观实际值和未来日历；
-- AI摘要、分类和评分结果缓存；
-- 自动报告生成、补偿运行和完整运行审计。
+- AI摘要、分类、聚类、评分和报告草稿缓存；
+- 核心结论与重大陈述的证据映射；
+- 自动质量检查、报告修订和完整运行审计。
 
 核心对象：
 
@@ -33,14 +35,18 @@ ProcessingArtifact
 Cluster
 ClusterItemRelation
 Event
+EventClusterRelation
 MarketSnapshot
 CalendarEvent
 Report
+ReportRevision
 ReportCluster
+ReportStatement
+ReportStatementEvidence
 Run
 ```
 
-第一版不要求把所有列表字段立即拆成关系表。`markets`、`topics`、`roles`等低频修改字段可以先以SQLite JSON字段保存；去重、聚类、报告引用和Provider运行记录必须使用明确关系。
+第一版不要求把所有列表字段立即拆成关系表。`markets`、`topics`、`roles`等低频修改字段可以先以SQLite JSON字段保存；去重、聚类、Provider运行、报告引用和证据映射必须使用明确关系。
 
 ---
 
@@ -142,7 +148,7 @@ Provider只负责获取，不负责重要性评分、跨来源聚类和报告写
 
 ## 5. SourceProviderBinding：来源与Provider绑定
 
-健康状态必须主要记录在“来源 × Provider”绑定上。
+健康状态主要记录在“来源 × Provider”绑定上。
 
 ```yaml
 id: string
@@ -264,17 +270,18 @@ updated_at: datetime
 
 ## 8. ProcessingArtifact：处理结果与AI缓存
 
-摘要、分类、观点提取、实体识别、相似度和评分结果不能只存在内存中。
+摘要、分类、观点提取、实体识别、证据包、相似度、评分和报告草稿不能只存在内存中。
 
 ```yaml
 id: string
-artifact_type: normalized_text | translation | summary | fact_opinion_split | entity_extraction | classification | similarity | cluster_synthesis | score | report_draft
-input_type: item | cluster | event | report
+artifact_type: normalized_text | translation | summary | fact_opinion_split | entity_extraction | classification | embedding | similarity | evidence_packet | cluster_synthesis | novelty | score | report_draft | quality_check | report_render
+input_type: item | cluster | event | report | report_revision
 input_id: string
 input_hash: string
 model_provider: string | null
 model_name: string | null
 prompt_version: string | null
+config_hash: string | null
 result_json: object | null
 result_text: string | null
 status: pending | success | failed_retryable | failed_final
@@ -286,10 +293,10 @@ updated_at: datetime
 唯一性建议：
 
 ```text
-UNIQUE(artifact_type, input_type, input_id, input_hash, model_name, prompt_version)
+UNIQUE(artifact_type, input_type, input_id, input_hash, model_name, prompt_version, config_hash)
 ```
 
-输入未变化时优先复用已有结果，避免重复消耗Token并保证幂等。
+输入未变化时优先复用已有结果，避免重复消耗Token并保证幂等。只保存简洁、结构化判定字段，不保存模型原始长篇思维过程。
 
 ---
 
@@ -300,6 +307,7 @@ UNIQUE(artifact_type, input_type, input_id, input_hash, model_name, prompt_versi
 ```yaml
 id: string
 cluster_type: event | opinion | research
+cluster_identity_json: object
 title: string
 primary_market: string
 markets: [string]
@@ -308,25 +316,54 @@ entities: [string]
 canonical_item_id: string
 first_seen_at: datetime
 last_updated_at: datetime
+last_material_update_at: datetime | null
+last_reported_at: datetime | null
+cluster_version: integer
 merged_summary: string
 novel_points: [string]
+unknowns: [string]
 source_count: integer
 independent_source_count: integer
 content_nature: string
 importance_score: number
 candidate_band: core | attention | browse | archive
 impact_confidence: confirmed | likely | unclear
-status: active | closed | archived
+status: active | closed | merged | split | archived
+merged_into_cluster_id: string | null
+split_from_cluster_id: string | null
 created_at: datetime
 updated_at: datetime
 ```
+
+`cluster_identity_json`按Cluster类型保存事件身份、观点命题或研究问题，例如：
+
+```yaml
+event:
+  actor:
+  action:
+  object:
+  time_or_state:
+  jurisdiction_or_market:
+opinion:
+  subject:
+  stance:
+  horizon:
+  rationale:
+  catalyst:
+  invalidation:
+research:
+  research_question:
+  method_or_framework:
+```
+
+`merged_into_cluster_id`和`split_from_cluster_id`用于保留修正历史，不能通过删除旧Cluster掩盖错误合并。
 
 ### 9.1 ClusterItemRelation
 
 ```yaml
 cluster_id: string
 item_id: string
-relation: duplicate | corroboration | new_detail | update | market_reaction | industry_impact | commentary | contradiction
+relation: duplicate | corroboration | new_detail | update | market_reaction | industry_impact | commentary | contradiction | correction | retraction
 novel_information: string | null
 is_independent_source: boolean
 created_at: datetime
@@ -338,11 +375,14 @@ created_at: datetime
 - 新增数字、范围、时间表和执行细节必须保留；
 - 市场反应和产业影响可以并入同一事件簇；
 - 相反观点使用`contradiction`并列；
+- 更正和撤回必须更新Cluster版本与后续报告判断；
 - `source_count`与`independent_source_count`分开。
 
 ---
 
 ## 10. Event：持续事件状态
+
+Event用于跟踪跨天、跨周的政策、监管、产业和突发风险生命周期。
 
 ```yaml
 id: string
@@ -363,7 +403,15 @@ created_at: datetime
 updated_at: datetime
 ```
 
-Event与Cluster使用独立关系表`EventClusterRelation(event_id, cluster_id, relation)`，不在Event中直接存放可变ID数组。
+Event与Cluster使用独立关系表：
+
+```yaml
+EventClusterRelation:
+  event_id: string
+  cluster_id: string
+  relation: initial | update | implementation | market_confirmation | correction | reversal | related
+  created_at: datetime
+```
 
 ---
 
@@ -424,34 +472,26 @@ updated_at: datetime
 
 ---
 
-## 13. Report与ReportCluster
+## 13. Report：报告任务对象
+
+Report代表一个固定窗口和计划时间的报告，不直接代表某一次具体渲染版本。
 
 ```yaml
-Report:
-  id: string
-  report_type: morning | evening | weekly
-  window_start: datetime
-  window_end: datetime
-  scheduled_at: datetime
-  generated_at: datetime | null
-  report_date: date
-  title: string
-  status: pending | generating | generated | partial | failed
-  content_path: string
-  source_success_count: integer
-  source_failure_count: integer
-  source_unknown_coverage_count: integer
-  created_at: datetime
-  updated_at: datetime
-
-ReportCluster:
-  report_id: string
-  cluster_id: string
-  section: string
-  position: integer
-  first_reported_at: datetime
-  is_repeat: boolean
-  update_type: no_change | minor_detail | material_update | reversal | market_confirmation | null
+id: string
+report_type: morning | evening | weekly
+window_start: datetime
+window_end: datetime
+scheduled_at: datetime
+report_date: date
+title: string
+status: pending | generating | generated | partial | failed
+input_snapshot_artifact_id: string | null
+current_revision_id: string | null
+source_success_count: integer
+source_failure_count: integer
+source_unknown_coverage_count: integer
+created_at: datetime
+updated_at: datetime
 ```
 
 唯一约束：
@@ -460,7 +500,97 @@ ReportCluster:
 UNIQUE(report_type, scheduled_at)
 ```
 
-Report与MarketSnapshot、CalendarEvent使用独立引用关系表，避免在Report行中保存不断增长的ID数组。
+### 13.1 ReportRevision：报告修订版本
+
+```yaml
+id: string
+report_id: string
+revision_number: integer
+draft_artifact_id: string
+quality_artifact_id: string | null
+content_path: string
+status: draft | blocked | generated | partial | superseded
+word_count: integer
+blocker_count: integer
+warning_count: integer
+change_reason: string | null
+planned_generated_at: datetime
+generated_at: datetime
+is_current: boolean
+created_at: datetime
+```
+
+唯一约束：
+
+```text
+UNIQUE(report_id, revision_number)
+```
+
+历史事实被更正时，不静默覆盖旧版本。需要修订历史成品时，创建新Revision并记录原因。
+
+### 13.2 ReportCluster：报告与Cluster关系
+
+```yaml
+report_id: string
+report_revision_id: string
+cluster_id: string
+section: string
+position: integer
+first_reported_at: datetime
+is_repeat: boolean
+update_type: no_change | minor_detail | material_update | reversal | market_confirmation | null
+change_since_previous: string | null
+created_at: datetime
+```
+
+重复进入晚报或跨日报告时，`change_since_previous`必须说明新增部分。
+
+### 13.3 ReportStatement：核心结论与重大陈述
+
+V1不要求拆分最终报告中的每一个普通句子，但必须保存：
+
+- 每条核心结论；
+- 每个核心条目的重大事实；
+- 重要因果或影响判断；
+- 关键预测和未知项。
+
+```yaml
+id: string
+report_revision_id: string
+cluster_id: string | null
+section: string
+position: integer
+statement_type: core_conclusion | material_fact | data | interpretation | attributed_opinion | forecast | unknown
+statement_text: string
+support_status: direct_supported | synthesis_supported | attributed_opinion | inference_labeled | unsupported
+impact_confidence: confirmed | likely | unclear | null
+citation_required: boolean
+created_at: datetime
+```
+
+### 13.4 ReportStatementEvidence：陈述证据映射
+
+```yaml
+report_statement_id: string
+evidence_type: item | cluster | market_snapshot | calendar_event
+evidence_id: string
+evidence_role: direct | corroboration | context | opinion_source | market_reaction | data_source
+created_at: datetime
+```
+
+质量控制通过该关系计算事实支持率、引用覆盖率和不受支持陈述数量。最终Markdown不需要展示内部支持图，但必须保留可追溯关系。
+
+Report与MarketSnapshot、CalendarEvent使用独立引用关系表：
+
+```yaml
+ReportMarketSnapshot:
+  report_revision_id: string
+  market_snapshot_id: string
+
+ReportCalendarEvent:
+  report_revision_id: string
+  calendar_event_id: string
+```
 
 ---
 
@@ -468,7 +598,7 @@ Report与MarketSnapshot、CalendarEvent使用独立引用关系表，避免在Re
 
 ```yaml
 id: string
-run_type: collect | normalize | process_ai | cluster | score | morning_report | evening_report | weekly_report | recovery_scan
+run_type: collect | normalize | process_ai | cluster | score | report_draft | quality_control | publication | morning_report | evening_report | weekly_report | recovery_scan
 scheduled_at: datetime | null
 window_start: datetime | null
 window_end: datetime | null
@@ -482,6 +612,7 @@ items_discovered: integer
 items_new: integer
 clusters_created: integer
 clusters_updated: integer
+reports_generated: integer
 error_summary: string | null
 log_path: string | null
 created_at: datetime
@@ -500,11 +631,12 @@ CreatorGroup
               └─ ProviderAttempt ─ Run
                      └─ Item
                           ├─ ProcessingArtifact
-                          ├─ ClusterItemRelation ─ Cluster ─ ReportCluster ─ Report
-                          └─ EventClusterRelation ─ Event
+                          ├─ ClusterItemRelation ─ Cluster ─ EventClusterRelation ─ Event
+                          └─ ReportStatementEvidence ─ ReportStatement
 
-MarketSnapshot ─ ReportMarketSnapshot ─ Report
-CalendarEvent  ─ ReportCalendarEvent  ─ Report
+Cluster ─ ReportCluster ─ ReportRevision ─ Report
+MarketSnapshot ─ ReportMarketSnapshot ─ ReportRevision
+CalendarEvent  ─ ReportCalendarEvent  ─ ReportRevision
 ```
 
 ---
@@ -518,9 +650,12 @@ Source:                    UNIQUE(platform, external_id) when external_id is not
 SourceProviderBinding:     UNIQUE(source_id, provider_id)
 Item:                      UNIQUE(platform, source_id, external_id) when external_id is not null
 ClusterItemRelation:       UNIQUE(cluster_id, item_id)
+EventClusterRelation:      UNIQUE(event_id, cluster_id)
 Report:                    UNIQUE(report_type, scheduled_at)
-ReportCluster:             UNIQUE(report_id, cluster_id)
-ProcessingArtifact:        UNIQUE(artifact_type, input_type, input_id, input_hash, model_name, prompt_version)
+ReportRevision:            UNIQUE(report_id, revision_number)
+ReportCluster:             UNIQUE(report_revision_id, cluster_id)
+ReportStatementEvidence:   UNIQUE(report_statement_id, evidence_type, evidence_id, evidence_role)
+ProcessingArtifact:        UNIQUE(artifact_type, input_type, input_id, input_hash, model_name, prompt_version, config_hash)
 ```
 
 重复执行同一任务时：
@@ -528,7 +663,8 @@ ProcessingArtifact:        UNIQUE(artifact_type, input_type, input_id, input_has
 - 不重复写入已有Item；
 - 不重复下载已有字幕和正文；
 - 不重复调用输入未变化的AI处理；
-- 不生成多个相同窗口的正式报告；
+- 不生成多个相同窗口的Report；
+- 允许生成可追溯的ReportRevision；
 - 失败步骤可单独重试，不回滚已成功步骤。
 
 ---
@@ -543,9 +679,10 @@ ProcessingArtifact:        UNIQUE(artifact_type, input_type, input_id, input_has
 - ProviderAttempt和Run；
 - Item元数据、去重键和状态；
 - AI处理结果索引与必要结构化结果；
-- Cluster、Event及关系；
+- Cluster、Event、合并拆分和关系；
 - 市场快照和宏观日历；
-- 报告及引用关系。
+- Report、ReportRevision和引用关系；
+- 核心结论、重大陈述及证据映射。
 
 ### 原始文件
 
@@ -556,11 +693,12 @@ ProcessingArtifact:        UNIQUE(artifact_type, input_type, input_id, input_has
 - 公众号正文、图片和长图解析结果；
 - YouTube字幕、转写、音频元数据和关键画面说明；
 - 行情、宏观和事件接口原始响应；
-- 大型AI响应或调试材料。
+- 大型AI响应或调试材料；
+- 结构化报告草稿和质量检查详情。
 
 ### Markdown
 
-保存最终早报、晚报和周报。
+保存最终早报、晚报和周报成品及必要修订版本。
 
 ---
 
