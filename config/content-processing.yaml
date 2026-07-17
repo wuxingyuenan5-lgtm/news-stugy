@@ -1,4 +1,4 @@
-version: '0.2'
+version: '0.3'
 mode: staged_cluster_pipeline
 status: design_only
 
@@ -6,6 +6,8 @@ policy_references:
   clustering_and_novelty: config/clustering-novelty.yaml
   scoring: config/scoring.yaml
   event_monitoring: config/event-monitoring.yaml
+  report_generation: config/report-generation.yaml
+  report_synthesis_quality_control: docs/report-synthesis-quality-control.md
 
 stage_order:
   - discovery
@@ -20,8 +22,11 @@ stage_order:
   - novelty_classification
   - scoring
   - report_selection
-  - report_synthesis
+  - evidence_packet_building
+  - structured_report_draft
   - quality_control
+  - auto_repair_and_recheck
+  - markdown_rendering
   - publication
 
 content_access:
@@ -139,6 +144,16 @@ selection_rules:
   trading_view_threshold: elevated
   no_padding: true
 
+report_writer_contract:
+  read_raw_items_directly: false
+  input_type: evidence_packet
+  output_type: structured_report_draft
+  markdown_generation_from_structured_draft_only: true
+  preserve_claim_support_map: true
+  allow_internet_lookup_during_generation: false
+  allow_model_generated_links: false
+  deterministic_market_table_rendering: true
+
 model_routing:
   lightweight_tasks:
     - language_detection
@@ -146,6 +161,7 @@ model_routing:
     - content_nature_classification
     - basic_entity_extraction
     - candidate_similarity_screening
+    - format_validation
   strong_model_tasks:
     - long_content_synthesis
     - fact_opinion_split
@@ -155,12 +171,15 @@ model_routing:
     - contradiction_handling
     - correction_and_retraction_handling
     - major_event_impact_analysis
-    - final_report_synthesis
+    - evidence_packet_synthesis
+    - structured_report_draft
+    - core_conclusion_synthesis
     - quality_repair
   visual_model_only_when_material: true
   cache_by_input_hash_and_prompt_version: true
 
 quality_control:
+  detailed_policy: config/report-generation.yaml
   require_source_for_material_fact: true
   forbid_opinion_as_fact: true
   forbid_title_based_hidden_content_inference: true
@@ -169,5 +188,15 @@ quality_control:
   verify_independent_source_count: true
   verify_cluster_identity_fields: true
   verify_delta_is_explicit_on_repeat: true
+  verify_claim_support_map: true
+  verify_no_model_generated_links: true
+  verify_market_values_from_structured_data: true
+  recheck_after_auto_repair: true
   allow_partial_report_on_local_failures: true
   fail_closed_on_unsupported_fact: true
+
+reasoning_storage:
+  store_raw_chain_of_thought: false
+  store_concise_structured_decisions: true
+  store_supporting_evidence_refs: true
+  store_failure_codes: true
