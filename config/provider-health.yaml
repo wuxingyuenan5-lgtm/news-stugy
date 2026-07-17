@@ -1,0 +1,184 @@
+version: "0.1"
+
+mode: state_machine_with_rolling_metrics
+single_health_score: false
+
+health_statuses:
+  - unverified
+  - healthy
+  - degraded
+  - unstable
+  - cooling_down
+  - disabled
+
+source_statuses:
+  - active
+  - possibly_inactive
+  - inactive
+  - removed
+  - disabled
+
+attempt_results:
+  - success_with_items
+  - success_empty
+  - partial_success
+  - suspicious_empty
+  - failed_retryable
+  - failed_rate_limited
+  - failed_blocked
+  - failed_parser_changed
+  - failed_auth_or_config
+  - failed_source_removed
+  - failed_final
+
+error_codes:
+  - network_timeout
+  - network_dns
+  - http_4xx
+  - http_5xx
+  - rate_limited
+  - blocked_or_captcha
+  - login_required
+  - invalid_credentials
+  - config_missing
+  - provider_unavailable
+  - parser_changed
+  - invalid_payload
+  - content_incomplete
+  - external_id_missing
+  - timestamp_missing
+  - source_removed
+  - source_private
+  - unsupported_content
+  - unknown_error
+
+rolling_windows:
+  recent_attempts: 10
+  extended_attempts: 20
+  review_days: 7
+
+metrics:
+  technical:
+    - attempt_success_rate
+    - consecutive_failures
+    - timeout_rate
+    - rate_limit_rate
+    - parser_failure_rate
+    - average_latency_ms
+    - p95_latency_ms
+  content_quality:
+    - complete_content_rate
+    - exact_timestamp_rate
+    - external_id_rate
+    - original_url_rate
+    - metadata_only_rate
+    - suspicious_empty_rate
+  coverage:
+    - discovery_lag_minutes
+    - coverage_status
+    - earliest_backfill_at
+    - backfill_success_rate
+    - fallback_miss_rate
+
+state_transitions:
+  degraded:
+    any_of:
+      - consecutive_technical_failures >= 3
+      - recent_10_success_rate < 0.80
+      - suspicious_empty_is_consecutive
+      - key_field_quality_drops_materially
+  unstable:
+    any_of:
+      - consecutive_technical_failures >= 5
+      - recent_20_success_rate < 0.50
+      - parser_failure_is_persistent
+      - fallback_provider_repeatedly_finds_missing_items
+      - result_quality_cannot_support_report_use
+  cooling_down:
+    any_of:
+      - rate_limited
+      - blocked_or_captcha
+      - temporary_provider_outage
+  disabled:
+    require_confirmation: true
+    any_of:
+      - provider_permanently_closed
+      - source_removed_or_private_long_term
+      - violates_zero_paid_content_policy
+      - dependency_is_unrecoverable
+      - long_term_failure_after_review
+
+cooldown_schedule:
+  first_minutes: 30
+  second_minutes: 120
+  third_minutes: 360
+  fourth_and_later_minutes: 1440
+
+recovery:
+  probe_after_cooldown: true
+  successes_to_degraded: 2
+  successes_to_healthy: 3
+  require_field_quality_recovery: true
+
+fallback_policy:
+  mode: serial
+  allow_parallel_shadow_validation: true
+  allow_paid_fallback: false
+  immediate_fallback_on:
+    - failed_retryable
+    - failed_rate_limited
+    - failed_blocked
+    - failed_parser_changed
+    - failed_auth_or_config
+    - suspicious_empty
+    - critical_fields_missing
+  no_fallback_on:
+    - success_empty
+    - source_is_normally_inactive
+    - no_content_in_window
+    - content_fetched_but_not_important
+
+priority_policy:
+  core:
+    max_free_provider_attempts: all_enabled
+    pre_report_retry: true
+    disclose_material_coverage_failure: true
+  supplementary:
+    max_free_provider_attempts: 2
+    pre_report_retry: false
+    disclose_material_coverage_failure: false
+  observe:
+    max_free_provider_attempts: 1
+    pre_report_retry: false
+    reduce_cadence_after_repeated_failure: true
+
+empty_result_policy:
+  empty_is_failure: false
+  suspicious_when:
+    - high_activity_source_empty_across_multiple_windows
+    - fallback_provider_finds_items
+    - multiple_active_canaries_are_empty
+    - response_is_verification_or_empty_shell_page
+
+canary_policy:
+  enabled: true
+  items_enter_report: false
+  recommended_count_per_provider: 2-3
+  use_for:
+    - provider_availability
+    - parser_integrity
+    - field_quality
+
+report_disclosure:
+  include_only_when_material: true
+  material_conditions:
+    - core_platform_coverage_is_degraded
+    - multiple_core_sources_failed
+    - key_market_or_macro_data_missing
+    - content_is_metadata_only_at_scale
+    - missing_coverage_may_change_conclusions
+
+review:
+  cycle_weeks: 2-4
+  compare_primary_and_fallback: true
+  evaluate_environment_before_server_migration: true
