@@ -1,54 +1,95 @@
-version: "0.2"
+version: "0.3"
 
 markets:
   macro:
-    label: 宏观
+    label: 宏观与流动性
+  us_rates:
+    label: 美债与美元利率
+    representative_assets:
+      - US Treasury 2Y
+      - US Treasury 10Y
+      - US Treasury 30Y
+  china_rates:
+    label: 中债与人民币利率
+    representative_assets:
+      - China Government Bond 2Y
+      - China Government Bond 10Y
+      - China Government Bond 30Y
   us_equity:
     label: 美股
   china_equity:
     label: A股与港股
   precious_metals:
-    label: 贵金属
+    label: 黄金与贵金属
+  industrial_metals:
+    label: 铜与工业金属
+    representative_assets:
+      - COMEX Copper或沪铜主力
+  battery_materials:
+    label: 锂与新能源原材料
+    representative_assets:
+      - 广期所碳酸锂主力
   crypto:
     label: 加密资产
   energy:
     label: 能源
   ai_frontier_tech:
     label: AI与前沿科技
+    representative_assets:
+      - SMH半导体ETF
 
 content_types:
   data:
     label: 数据
-    description: 经济数据、市场数据和统计发布
+    description: 经济数据、市场数据、收益率和统计发布
   policy:
     label: 政策
-    description: 央行、财政、监管和政府政策
+    description: 央行、财政、监管、关税和政府政策
   company:
     label: 公司
-    description: 财报、公告、电话会和公司动态
+    description: 财报、公告、电话会、资本开支和公司动态
   industry:
     label: 产业
-    description: 供需、产能、供应链和产业趋势
+    description: 供需、产能、库存、供应链和产业趋势
   market:
     label: 市场
-    description: 价格、资金流、仓位、波动率和市场结构
+    description: 价格、资金流、仓位、利差、波动率和市场结构
   research:
     label: 研究
-    description: 机构报告、Newsletter和个人观点
+    description: 机构报告、Newsletter、长文、视频和个人观点
   calendar:
     label: 日历
-    description: 未来数据、会议、财报和政策节点
+    description: 未来数据、会议、财报、监管和政策节点
+
+content_natures:
+  fact:
+    label: 事实
+  data:
+    label: 数据
+  analysis:
+    label: 分析
+  opinion:
+    label: 观点
+  forecast:
+    label: 预测
+  trading_view:
+    label: 交易观点
+  education:
+    label: 研究与方法
 
 importance:
-  high:
-    label: 高
-    description: 应进入报告重点位置
-  medium:
-    label: 中
-    description: 可作为分市场补充
-  low:
-    label: 低
-    description: 归档、观察或忽略
+  core:
+    label: 核心
+    description: 优先进入报告核心结论或核心事件
+  attention:
+    label: 值得关注
+    description: 进入分市场补充、重点观点或次级栏目
+  browse:
+    label: 其他值得浏览
+    description: 简短保留有增量但影响有限的内容
+  archive:
+    label: 归档
+    description: 保存但不进入报告
 
 source_levels:
   A:
@@ -61,11 +102,46 @@ source_levels:
     label: 线索来源
     description: Newsletter、社交媒体、博主和其他观点来源
 
+source_priorities:
+  core:
+    label: 核心来源
+    description: 每个报告周期检查，使用正常入选门槛
+  supplementary:
+    label: 补充来源
+    description: 正常采集，但使用略高入选门槛
+  observe:
+    label: 观察来源
+    description: 继续采集，使用明显更高入选门槛
+  disabled:
+    label: 停用来源
+    description: 暂不采集，保留配置和停用原因
+
 item_status:
-  - inbox
+  - discovered
+  - fetched
+  - normalized
+  - filtered
+  - clustered
+  - scored
   - selected
-  - ignored
-  - published
+  - reported
+  - archived
+  - failed
+
+cluster_types:
+  - event
+  - opinion
+  - research
+
+cluster_relations:
+  - duplicate
+  - corroboration
+  - new_detail
+  - update
+  - market_reaction
+  - industry_impact
+  - commentary
+  - contradiction
 
 languages:
   - en
@@ -73,7 +149,9 @@ languages:
   - multilingual
 
 taxonomy_rules:
-  - 第一阶段只使用市场分类和内容类型两个主标签维度
-  - 主题标签先以自由文本记录，不建立庞大固定字典
-  - 同一条信息可以属于多个市场，但只选择一个主要内容类型
-  - 新标签只有在连续使用后才加入正式配置
+  - 同一条信息可以属于多个市场，但需选择一个primary_market
+  - 内容性质必须区分事实、数据、分析、观点、预测和交易观点
+  - 主题标签先以自由文本记录，不预先建立庞大固定字典
+  - 新标签只有在连续使用并显著改善报告后才加入正式配置
+  - 市场分类用于检索和聚类，不要求报告按市场平均分配篇幅
+  - SMH只作为AI基础设施和半导体代理，不代表完整AI产业链
