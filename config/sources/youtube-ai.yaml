@@ -1,0 +1,197 @@
+version: '0.1'
+registry_group: youtube_ai
+source_origin: 博主整理(1).ipynb
+defaults:
+  platform: youtube
+  default_source_level: C
+  default_verification_status: unverified
+  default_expected_activity: weekly
+  default_collection:
+    exclude_live: true
+    exclude_live_replays: true
+    exclude_shorts: true
+    skip_promotional_or_lifestyle: true
+sources:
+- id: yt_uchnnjlyx_5rk_idpq2bqdqa
+  name: 硅谷101播客
+  url: https://www.youtube.com/channel/UChnNjLyx_5rk_iDPQ2BQDQA
+  external_id: UChnNjLyx_5rk_iDPQ2BQDQA
+  source_level: B
+  priority: supplementary
+  user_importance_signal: high
+  markets: [ai_frontier_tech]
+  topics: [ai_news, ai_industry]
+  source_roles: [professional_reporting, analysis]
+- id: yt_ucgwykicloe8wxy7q3eyxmpa
+  name: 最佳拍档
+  url: https://www.youtube.com/channel/UCGWYKICLOE8Wxy7q3eYXmPA
+  external_id: UCGWYKICLOE8Wxy7q3eYXmPA
+  priority: supplementary
+  user_importance_signal: high
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods]
+  source_roles: [education]
+- id: yt_ucvzucvhfnqw4wek7if7vqeq
+  name: 杰森的效率工坊
+  url: https://www.youtube.com/channel/UCvZUCvhFnqw4WEK7If7vQEQ
+  external_id: UCvZUCvhFnqw4WEK7If7vQEQ
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods]
+  source_roles: [education]
+- id: yt_ucxupkjo5mzqn11pqgivyuvq
+  name: Andrej Karpathy
+  url: https://www.youtube.com/channel/UCXUPKJO5MZQN11PqgIvyuvQ
+  external_id: UCXUPKJO5MZQN11PqgIvyuvQ
+  creator_group_id: creator_andrej_karpathy
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_research, ai_tools_and_methods]
+  source_roles: [research, education]
+- id: yt_uchplebmo18p08akcigti38g
+  name: Matt Wolfe
+  url: https://www.youtube.com/channel/UChpleBmo18P08aKCIgti38g
+  external_id: UChpleBmo18P08aKCIgti38g
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_news, ai_tools_and_methods]
+  source_roles: [event_discovery, education]
+- id: yt_ucvkrfnawvcuz4b9ihutapcg
+  name: David Shapiro
+  url: https://www.youtube.com/channel/UCvKRFNawVcuz4b9ihUTApCg
+  external_id: UCvKRFNawVcuz4b9ihUTApCg
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_research, ai_industry]
+  source_roles: [analysis, opinion]
+- id: yt_ucr9j1jqqb5rse69wjunbywa
+  name: All About AI
+  url: https://www.youtube.com/channel/UCR9j1jqqB5Rse69wjUnbYwA
+  external_id: UCR9j1jqqB5Rse69wjUnbYwA
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods]
+  source_roles: [education]
+- id: yt_ucxuqsblhae6xw-yeja0tunw
+  name: Linus Tech Tips
+  url: https://www.youtube.com/channel/UCXuqSBlHAE6Xw-yeJA0Tunw
+  external_id: UCXuqSBlHAE6Xw-yeJA0Tunw
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [technology, hardware]
+  source_roles: [education, event_discovery]
+- id: yt_ucq-rzd0npjxytpb3y5bnxpw
+  name: Jason West
+  url: https://www.youtube.com/channel/UCQ-rZd0NpjXYTpB3y5BNxPw
+  external_id: UCQ-rZd0NpjXYTpB3y5BNxPw
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods]
+  source_roles: [education]
+- id: yt_ucyan6mg5u8cjy2zi4ikwaug
+  name: My First Million
+  url: https://www.youtube.com/channel/UCyaN6mg5u8Cjy2ZI4ikWaug
+  external_id: UCyaN6mg5u8Cjy2ZI4ikWaug
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_business, entrepreneurship]
+  source_roles: [opinion, education]
+- id: yt_ucwxydyv5stlk-zoxmp2i1lw
+  name: Dan Koe
+  url: https://www.youtube.com/channel/UCWXYDYv5STLk-zoxMP2I1Lw
+  external_id: UCWXYDYv5STLk-zoxMP2I1Lw
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods, creator_economy]
+  source_roles: [education, opinion]
+- id: yt_uc0v9b0z00wwed_vgy-q6ibg
+  name: 李厂长来了
+  url: https://www.youtube.com/channel/UC0v9b0Z00wWED_vGy-Q6ibg
+  external_id: UC0v9b0Z00wWED_vGy-Q6ibg
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_news, ai_tools_and_methods]
+  source_roles: [event_discovery, education]
+- id: yt_ucmcoud_zw7cfxeiugbflsbw
+  name: Riley Brown
+  url: https://www.youtube.com/channel/UCMcoud_ZW7cfxeIugBflSBw
+  external_id: UCMcoud_ZW7cfxeIugBflSBw
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods]
+  source_roles: [education]
+- id: yt_uca6d2k5qhpoi9i-wt8fpd6g
+  name: 技术爬爬虾 TechShrimp
+  url: https://www.youtube.com/channel/UCa6D2k5qhpOI9I-WT8fpd6g
+  external_id: UCa6D2k5qhpOI9I-WT8fpd6g
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods, software_development]
+  source_roles: [education]
+- id: yt_uc4x3cr25wslvmjutsppzwwg
+  name: Chris Raroque
+  url: https://www.youtube.com/channel/UC4x3CR25WSlvMJUtSPPzwwg
+  external_id: UC4x3CR25WSlvMJUtSPPzwwg
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_tools_and_methods]
+  source_roles: [education]
+- id: yt_uc8wcw6c3bwlksz5cmzd8gyw
+  name: 跟李沐学AI
+  url: https://www.youtube.com/channel/UC8WCW6C3BWLKSZ5cMzD8Gyw
+  external_id: UC8WCW6C3BWLKSZ5cMzD8Gyw
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [machine_learning, ai_research]
+  source_roles: [education, research]
+- id: yt_uc2ggjtuuwvxrhhhiadh1dlq
+  name: Hung-yi Lee
+  url: https://www.youtube.com/channel/UC2ggjtuuWvxrHHHiaDH1dlQ
+  external_id: UC2ggjtuuWvxrHHHiaDH1dlQ
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [machine_learning, ai_research]
+  source_roles: [education, research]
+- id: yt_uccixc5mjshvytzr1mal5l9w
+  name: DeepLearningAI
+  url: https://www.youtube.com/channel/UCcIXc5mJsHVYTZR1maL5l9w
+  external_id: UCcIXc5mJsHVYTZR1maL5l9w
+  source_level: B
+  priority: supplementary
+  markets: [ai_frontier_tech]
+  topics: [machine_learning, ai_research, ai_tools_and_methods]
+  source_roles: [education, research]
+- id: yt_ucxl4i9dybrfoabk0xgmbkra
+  name: Dwarkesh Patel
+  url: https://www.youtube.com/channel/UCXl4i9dYBrFOabk0xGmbkRA
+  external_id: UCXl4i9dYBrFOabk0xGmbkRA
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_research, ai_industry]
+  source_roles: [long_form_interview, analysis]
+- id: yt_uc6t1o76g0jyxoaoycm153da
+  name: Lenny's Podcast
+  url: https://www.youtube.com/channel/UC6t1O76G0jYXOAoYCm153dA
+  external_id: UC6t1O76G0jYXOAoYCm153dA
+  priority: observe
+  markets: [ai_frontier_tech]
+  topics: [ai_business, product_management]
+  source_roles: [long_form_interview, education]
+- id: yt_uckelck4zao6heei1kqjqzwa
+  name: The AI Daily Brief
+  url: https://www.youtube.com/channel/UCKelCK4ZaO6HeEI1KQjqzWA
+  external_id: UCKelCK4ZaO6HeEI1KQjqzWA
+  source_level: B
+  priority: supplementary
+  markets: [ai_frontier_tech]
+  topics: [ai_news, ai_policy, ai_industry]
+  source_roles: [professional_reporting, event_discovery]
+- id: yt_uccefczrl2oaa_ubneo5uowg
+  name: Y Combinator
+  url: https://www.youtube.com/channel/UCcefcZRL2oaA_uBNeo5UOWg
+  external_id: UCcefcZRL2oaA_uBNeo5UOWg
+  source_level: B
+  priority: supplementary
+  markets: [ai_frontier_tech]
+  topics: [ai_business, startups, technology]
+  source_roles: [education, long_form_interview]
