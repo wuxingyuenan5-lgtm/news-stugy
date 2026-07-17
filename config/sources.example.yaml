@@ -1,54 +1,72 @@
-version: "0.1"
+version: "0.2"
 
 sources:
-  - id: example_fed_press_releases
-    name: Federal Reserve Press Releases
-    tier: tier_1
-    source_type: rss
-    language: en
-    region: united_states
-    topics:
-      - macro.monetary_policy
-      - macro.liquidity
-      - macro.rates
+  - id: example_official_source
+    name: Example Official Source
     url: "REPLACE_WITH_SOURCE_URL"
-    enabled: false
-    update_frequency: hourly
-    expected_delay_minutes: 10
-    requires_auth: false
-    parser: generic_rss
-    copyright_mode: metadata_and_excerpt
-    trust_score: 98
-    notes: 官方来源；正式启用前核对RSS地址与使用条款。
-
-  - id: example_professional_media
-    name: Professional Financial Media
-    tier: tier_2
-    source_type: rss
+    source_level: A
+    source_type: official
+    markets:
+      - macro
+    content_types:
+      - data
+      - policy
     language: en
-    region: global
-    topics:
+    frequency: irregular
+    review_cadence: daily
+    access_method: website
+    enabled: false
+    priority: core
+    use_in_report: facts_and_calendar
+    notes: 官方原始来源，重点保留公告时间、原始数据和链接。
+
+  - id: example_financial_media
+    name: Example Financial Media
+    url: "REPLACE_WITH_SOURCE_URL"
+    source_level: B
+    source_type: media
+    markets:
       - macro
       - us_equity
       - energy
-      - ai_frontier_tech
-    url: "REPLACE_WITH_SOURCE_URL"
+    content_types:
+      - policy
+      - company
+      - market
+    language: en
+    frequency: realtime
+    review_cadence: daily
+    access_method: rss_or_website
     enabled: false
-    update_frequency: every_15_minutes
-    expected_delay_minutes: 5
-    requires_auth: true
-    parser: generic_rss
-    copyright_mode: metadata_only
-    trust_score: 88
-    notes: 只保存允许保存的元数据和摘要，不绕过付费墙。
+    priority: core
+    use_in_report: breaking_news_and_context
+    notes: 用于及时发现重要事件和补充背景，重要事实尽量回溯一手来源。
 
-  - id: manual_research_input
-    name: Manual Research Input
-    tier: tier_3
+  - id: example_research_source
+    name: Example Research Source
+    url: "REPLACE_WITH_SOURCE_URL"
+    source_level: B
+    source_type: research
+    markets:
+      - ai_frontier_tech
+    content_types:
+      - research
+      - industry
+    language: en
+    frequency: weekly
+    review_cadence: weekly
+    access_method: newsletter
+    enabled: false
+    priority: supplementary
+    use_in_report: weekly_theme
+    notes: 适合进入周报主题整理，不要求每日查看。
+
+  - id: manual_input
+    name: Manual Input
+    url: null
+    source_level: C
     source_type: manual
-    language: multilingual
-    region: global
-    topics:
+    markets:
       - macro
       - us_equity
       - china_equity
@@ -56,33 +74,46 @@ sources:
       - crypto
       - energy
       - ai_frontier_tech
+    content_types:
+      - research
+    language: multilingual
+    frequency: irregular
+    review_cadence: on_demand
+    access_method: manual
     enabled: true
-    update_frequency: on_demand
-    expected_delay_minutes: 0
-    requires_auth: false
-    parser: manual
-    copyright_mode: user_supplied
-    trust_score: 70
-    notes: 用于手工添加研报、链接、会议纪要和个人研究材料。
+    priority: supplementary
+    use_in_report: research_leads
+    notes: 用于手工加入研报、文章、视频、社交媒体和个人笔记。
 
-source_schema_notes:
-  source_type_options:
+field_notes:
+  source_level:
+    A: 官方、一手公告和原始数据
+    B: 专业媒体、数据平台和高质量研究机构
+    C: Newsletter、博主、社交媒体和其他线索来源
+  priority:
+    core: 日常固定查看
+    supplementary: 按主题或需要查看
+    experimental: 试用观察，后续决定是否保留
+  review_cadence:
+    - realtime
+    - daily
+    - weekly
+    - on_demand
+  access_method_examples:
+    - website
     - rss
     - api
-    - html
-    - pdf
-    - email
-    - manual
+    - newsletter
     - social
-  copyright_mode_options:
-    - metadata_only
-    - metadata_and_excerpt
-    - full_text_permitted
-    - user_supplied
+    - manual
   required_fields:
     - id
     - name
-    - tier
+    - source_level
     - source_type
-    - topics
+    - markets
+    - content_types
+    - review_cadence
     - enabled
+    - priority
+    - use_in_report
