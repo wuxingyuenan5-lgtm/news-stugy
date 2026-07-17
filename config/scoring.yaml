@@ -1,7 +1,11 @@
-version: "0.3"
+version: "0.4"
 
 mode: automated_cluster_scoring
 score_target: cluster
+
+policy_references:
+  clustering_and_novelty: config/clustering-novelty.yaml
+  content_processing: config/content-processing.yaml
 
 # 评分对象是完成去重和合并后的事件簇或观点簇，不直接对单条转载内容排序。
 # 总分用于候选分层，不构成机械入选规则；强制事件、重大例外、来源可靠性和报告篇幅仍需单独判断。
@@ -104,6 +108,7 @@ cluster_rules:
   - 同一事件的新增细节、市场反应和产业影响应合并提取，不应简单删除
   - 相近观点可以归纳共同结论，但必须保留重要分歧
   - 相反观点标记为contradiction并并列展示，不进行平均化
+  - correction与retraction必须显式保留并触发重新判断
   - 来源数量代表传播度或确认度，不直接等于事件重要性
   - 同时记录source_count和independent_source_count
 
