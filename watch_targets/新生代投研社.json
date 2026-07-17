@@ -1,0 +1,44 @@
+{
+  "account": {
+    "nickname": "新生代投研社",
+    "biz": "MzE5ODE0NzIwNw==",
+    "user_name": "gh_8d0ee595cf01",
+    "profile_signature": "聚焦 A 股行情分析，拆解市场核心逻辑\n实战派☑️    股评家❌",
+    "round_head_img": "http://mmbiz.qpic.cn/mmbiz_png/zRK2PNNLo98fuUYOzLhfcQhPlWJ8orgjLZRPpINOpSic2WMiawZkkMEBgIxdVNJUaBLWBJY8mmAghicOMcy88hLSg/0?wx_fmt=png"
+  },
+  "seed_article": {
+    "title": "今天深蹲了，明天起跳？",
+    "url": "https://mp.weixin.qq.com/s/FcXkFuiE0VogDEzDMzrRzA",
+    "biz": "MzE5ODE0NzIwNw==",
+    "nickname": "新生代投研社",
+    "user_name": "gh_8d0ee595cf01",
+    "msgid": "2247492334",
+    "idx": "1",
+    "sn": "9f848e2af0dddd2bdd467abc7dd1fdc2",
+    "publish_ts": 1781190028,
+    "publish_time_cn": "2026-06-11 23:00:28",
+    "author": "桑田",
+    "profile_signature": "聚焦 A 股行情分析，拆解市场核心逻辑\n实战派☑️    股评家❌",
+    "cover_image": "https://mmbiz.qpic.cn/mmbiz_jpg/y6HtlnwDjXdQIcDIXtz9BibcmdA4FzoL8GlYo70sbz9nJj0ojcdMv67x5lVT9JbPfUhUv7w2AGBiaWX7nIu7Pdg9wVs9G5iaLyEfe97w97LUqo/0?wx_fmt=jpeg",
+    "round_head_img": "http://mmbiz.qpic.cn/mmbiz_png/zRK2PNNLo98fuUYOzLhfcQhPlWJ8orgjLZRPpINOpSic2WMiawZkkMEBgIxdVNJUaBLWBJY8mmAghicOMcy88hLSg/0?wx_fmt=png",
+    "album_ids": [
+      "4090730591665225729"
+    ]
+  },
+  "discovery": {
+    "bootstrapped_at_cn": "2026-06-14 14:54:19",
+    "album_observations": [
+      {
+        "album_id": "4090730591665225729",
+        "items_found": 10,
+        "contains_seed_msgid": false,
+        "top_3_titles": [
+          "聊聊预制菜，以及，924即将一周年之际，市场会怎么走？XG能夺冠吗？",
+          "又是一年九月九",
+          "看K线成长记忘记时间了，上来聊几句，先聊短剧后聊股票"
+        ]
+      }
+    ],
+    "note": "Seed article parsing is available immediately. Automatic article-list discovery works best with WXPUBLIC_APP_ID/WXPUBLIC_SECURE_KEY."
+  }
+}

@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.pytest_cache/
+.ytdeps/
+chrome_profile_clone/
+tmp_wx_week/
+skills/x-fetch/state/
+skills/x-fetch/outputs/report-*/
+skills/x-fetch/outputs/batch-*/
+latest10_newshengdai.json
+*.log

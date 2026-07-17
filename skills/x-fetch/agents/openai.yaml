@@ -1,0 +1,4 @@
+interface:
+  display_name: "X Fetch"
+  short_description: "Fetch recent X creator posts fast and summarize them by asset class."
+  default_prompt: "Use $x-fetch to pull recent posts from my tracked X accounts and summarize them by asset class."

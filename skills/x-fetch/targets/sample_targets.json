@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "username": "chenreason",
+      "include_replies": false
+    }
+  ],
+  "limit_per_user": 40,
+  "include_replies": false,
+  "default_window": {
+    "days": 3
+  }
+}

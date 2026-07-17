@@ -1,0 +1,124 @@
+﻿{
+  "generated_at": "2026-06-18T10:25:29.992825+00:00",
+  "window": {
+    "start": "2026-06-11T10:25:29.987825+00:00",
+    "end": "2026-06-18T10:25:29.987825+00:00"
+  },
+  "users": [
+    "chenreason"
+  ],
+  "total_fetched": 10,
+  "unknown_time_count": 0,
+  "posts": [
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-17T10:25:29.992825+00:00",
+      "published_at_raw": "1 day ago",
+      "text": "鲍威尔：我不降息。懂王：滚。 沃什：我也不降息。懂王：好。",
+      "asset_class": "macro",
+      "signal_score": 2,
+      "low_signal": false
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-17T10:25:29.992825+00:00",
+      "published_at_raw": "1 day ago",
+      "text": "@V1JeromeLoo 千问有点距离，但是好歹好认好念。 至于文XXX。。。我真的照着念都容易念错",
+      "asset_class": "other",
+      "signal_score": 2,
+      "low_signal": true
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-17T10:25:29.992825+00:00",
+      "published_at_raw": "1 day ago",
+      "text": "突然发现字节跳动的取名能力真的是被严重低估。 它的命名有一套很统一的底层逻辑，那就是用最日常的词占领认知。 抖音、豆包、汽水、红果，加上西瓜视频、番茄小说、飞书等等一系列。 几乎都是小学生都认识的词，两个字，张口就来，根本不用解释 ...",
+      "asset_class": "other",
+      "signal_score": 3,
+      "low_signal": false
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-17T10:25:29.992825+00:00",
+      "published_at_raw": "1 day ago",
+      "text": "@TokihoJunko 月之暗面是公司名",
+      "asset_class": "other",
+      "signal_score": 1,
+      "low_signal": true
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-16T10:25:29.992825+00:00",
+      "published_at_raw": "2 days ago",
+      "text": "和平红利加持的一天。 昨晚纳斯达克暴涨3+%，创下三月底以来最大单日涨幅。 但如果 ...",
+      "asset_class": "other",
+      "signal_score": 2,
+      "low_signal": false
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-15T10:25:29.992825+00:00",
+      "published_at_raw": "3 days ago",
+      "text": "汇率这东西，涨跌很正常，没必要大惊小怪。 你看过去这一年，美元兑人民币就是涨涨跌跌跌跌跌...",
+      "asset_class": "macro",
+      "signal_score": 2,
+      "low_signal": false
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-15T10:25:29.992825+00:00",
+      "published_at_raw": "3 days ago",
+      "text": "恐惧是现在AI行业的增长飞轮。 人类担心AI会取代人类→这种担心本身吸引了所有注意力→注意力转化为资本流入AI公司→AI公司用这些资本变得更强→AI变得更强增加了人类的担心→循环重复。 你不需要相信AI有意识、有目的、有征服人类的计划。你只需要 ...",
+      "asset_class": "ai",
+      "signal_score": 3,
+      "low_signal": false
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-14T10:25:29.992825+00:00",
+      "published_at_raw": "4 days ago",
+      "text": "把最近的一些新闻串起来看： - 美国政府要入股AI公司 - 阿根廷立法让AI当法人 - 中国砸 2 万亿搞AI国家基础设施 - 日本一个农民用Codex自动化农业 - 欧盟搞AI法案但主要AI公司一家都不在欧洲 表面上看是各国的AI现状，参差不齐。 但大多数国家可能还没意识到 ...",
+      "asset_class": "ai",
+      "signal_score": 3,
+      "low_signal": false
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-13T10:25:29.992825+00:00",
+      "published_at_raw": "5 days ago",
+      "text": "@CnFuck 哈哈，好久不见",
+      "asset_class": "other",
+      "signal_score": 0,
+      "low_signal": true
+    },
+    {
+      "author": "chenreason",
+      "post_id": "",
+      "post_url": "",
+      "published_at": "2026-06-13T10:25:29.992825+00:00",
+      "published_at_raw": "5 days ago",
+      "text": "AI产业现在有个最大的公开秘密。 那就是它同时在卖两个互相矛盾的故事。 对投资人说，AI将替代一切人力，利润无穷。 但对公众说，AI不会替代你，只会帮你变强。 理论上，这两个故事不可能同时为真。",
+      "asset_class": "ai",
+      "signal_score": 3,
+      "low_signal": false
+    }
+  ]
+}
