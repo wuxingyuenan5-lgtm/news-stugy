@@ -1,0 +1,174 @@
+version: "0.1"
+
+asset_classes:
+  macro:
+    label: 宏观
+    subtopics:
+      - growth
+      - inflation
+      - employment
+      - monetary_policy
+      - fiscal_policy
+      - liquidity
+      - credit
+      - fx
+      - rates
+  us_equity:
+    label: 美股
+    subtopics:
+      - earnings
+      - valuation
+      - breadth
+      - positioning
+      - buybacks
+      - sectors
+      - mega_cap_tech
+  china_equity:
+    label: A股与港股
+    subtopics:
+      - policy
+      - credit_impulse
+      - property
+      - consumption
+      - manufacturing
+      - sectors
+      - southbound_northbound
+      - liquidity
+  precious_metals:
+    label: 贵金属
+    subtopics:
+      - gold
+      - silver
+      - platinum_group
+      - real_yield
+      - central_bank_demand
+      - etf_flow
+      - futures_positioning
+      - physical_premium
+  crypto:
+    label: 加密资产
+    subtopics:
+      - bitcoin
+      - ethereum
+      - altcoins
+      - etf_flow
+      - stablecoins
+      - derivatives
+      - onchain
+      - treasury_companies
+      - regulation
+  energy:
+    label: 能源
+    subtopics:
+      - crude_oil
+      - refined_products
+      - natural_gas
+      - coal
+      - uranium
+      - power
+      - opec
+      - inventories
+      - refining
+  ai_frontier_tech:
+    label: AI与前沿科技
+    subtopics:
+      - hyperscaler_capex
+      - semiconductors
+      - gpu
+      - advanced_process
+      - memory
+      - networking
+      - optical
+      - data_center
+      - power_cooling
+      - ai_software
+      - robotics
+      - autonomous_driving
+      - biotech
+
+state_variables:
+  growth:
+    label: 增长
+  inflation:
+    label: 通胀
+  liquidity:
+    label: 流动性
+  monetary_policy:
+    label: 货币政策
+  fiscal_policy:
+    label: 财政政策
+  risk_appetite:
+    label: 风险偏好
+  flow_positioning:
+    label: 资金流与仓位
+  supply_shock:
+    label: 供给冲击
+  earnings:
+    label: 盈利
+  valuation:
+    label: 估值
+  regulation:
+    label: 监管
+  geopolitics:
+    label: 地缘政治
+  technology_cycle:
+    label: 技术周期
+
+regions:
+  - global
+  - united_states
+  - china
+  - eurozone
+  - japan
+  - emerging_markets
+  - middle_east
+
+impact_direction:
+  - strongly_bullish
+  - bullish
+  - neutral
+  - bearish
+  - strongly_bearish
+  - mixed
+  - uncertain
+
+impact_horizon:
+  - intraday
+  - days
+  - weeks
+  - months
+  - structural
+
+source_tiers:
+  tier_1:
+    label: 一手官方与原始数据
+    default_trust_score: 95
+  tier_2:
+    label: 专业媒体与数据平台
+    default_trust_score: 85
+  tier_3:
+    label: 机构研究与行业分析
+    default_trust_score: 75
+  tier_4:
+    label: 社交媒体与个人观点
+    default_trust_score: 45
+
+event_status:
+  - new
+  - developing
+  - updated
+  - corrected
+  - resolved
+
+review_status:
+  - pending
+  - accepted
+  - revised
+  - rejected
+
+report_usage:
+  - daily_core
+  - daily_brief
+  - weekly_candidate
+  - database_only
+  - noise
