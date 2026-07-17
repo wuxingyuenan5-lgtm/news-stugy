@@ -1,0 +1,101 @@
+version: '0.1'
+source_origin: 博主整理(1).ipynb
+status: pending_validation
+
+merged_duplicates:
+  - platform: x
+    canonical_name: Lyra
+    url: https://x.com/web3Lyra
+    occurrences: 2
+  - platform: x
+    canonical_name: Adrian Morris
+    aliases: [drian Morris]
+    url: https://x.com/_Adrian
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 伍戈经济笔记
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 培风客
+    occurrences: 2
+  - platform: wechat
+    canonical_name: BFC汇谈
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 地平线全球策略
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 郁言债市
+    occurrences: 2
+  - platform: wechat
+    canonical_name: momo-Au
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 风起于斯
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 东函西数
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 像鳄鱼一样思考
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 卫斯李的投研笔记
+    occurrences: 2
+  - platform: wechat
+    canonical_name: 姚佩策略探索
+    occurrences: 2
+
+ambiguous_markers:
+  policy: 原文件使用###而不是***，暂定supplementary，不解释为明确核心标记。
+  sources:
+    - 港龍財眼
+    - 于博宏观札记
+    - 交易修行路
+    - 地心共振
+    - 行知美股
+    - 荀玉根思考
+
+platform_mismatch:
+  - name: 波浪理论学习
+    listed_section: 微信公众号
+    actual_url: https://m.weibo.cn/u/1644724561
+    proposed_platform: weibo
+    enabled: false
+    reason: 当前项目尚未设计微博Collector，需确认是否保留及使用何种免费Provider。
+
+cross_platform_matches_to_verify:
+  - creator_group_id: creator_investment_talk
+    names: [投资TALK君]
+  - creator_group_id: creator_stocktalkwithjay
+    names: [StockTalkWithJay美股, StockTalkWithJay]
+  - creator_group_id: creator_li_yijian
+    names: [李意坚说]
+  - creator_group_id: creator_benjamin_cowen
+    names: [Benjamin Cowen, benjamincowen]
+  - creator_group_id: creator_mrpixel
+    names: [Mrpixel | 像素先森 | Brian Xue, 像素先森]
+  - creator_group_id: creator_trader_qianye
+    names: [Trader qianye君, Traderqianye]
+  - creator_group_id: creator_shanghao_jin
+    names: [Shanghao Jin, Herman Jin]
+  - creator_group_id: creator_victalk
+    names: [Vic TALK, victalk]
+  - creator_group_id: creator_million_eric
+    names: [百萬Eric | 比特幣, 百万埃里克]
+  - creator_group_id: creator_crypto_invest_record
+    names: [Crypto投资记录]
+  - creator_group_id: creator_crypto_punk
+    names: [加密龐克, 加密庞克]
+  - creator_group_id: creator_andrej_karpathy
+    names: [Andrej Karpathy, karpathy]
+
+validation_checks:
+  - URL或账号当前是否仍可访问
+  - 展示名称是否已变化
+  - 账号是否停止更新、转私密或更换平台
+  - 频道ID与创作者是否匹配
+  - 公众号种子文章是否仍能解析biz与真实公众号名称
+  - 跨平台账号是否确属同一创作者
+  - 原***标记是否仍符合当前关注重点
+  - 内容是否长期以广告、生活或低价值推广为主
