@@ -1,0 +1,88 @@
+version: "0.1"
+
+sources:
+  - id: example_fed_press_releases
+    name: Federal Reserve Press Releases
+    tier: tier_1
+    source_type: rss
+    language: en
+    region: united_states
+    topics:
+      - macro.monetary_policy
+      - macro.liquidity
+      - macro.rates
+    url: "REPLACE_WITH_SOURCE_URL"
+    enabled: false
+    update_frequency: hourly
+    expected_delay_minutes: 10
+    requires_auth: false
+    parser: generic_rss
+    copyright_mode: metadata_and_excerpt
+    trust_score: 98
+    notes: 官方来源；正式启用前核对RSS地址与使用条款。
+
+  - id: example_professional_media
+    name: Professional Financial Media
+    tier: tier_2
+    source_type: rss
+    language: en
+    region: global
+    topics:
+      - macro
+      - us_equity
+      - energy
+      - ai_frontier_tech
+    url: "REPLACE_WITH_SOURCE_URL"
+    enabled: false
+    update_frequency: every_15_minutes
+    expected_delay_minutes: 5
+    requires_auth: true
+    parser: generic_rss
+    copyright_mode: metadata_only
+    trust_score: 88
+    notes: 只保存允许保存的元数据和摘要，不绕过付费墙。
+
+  - id: manual_research_input
+    name: Manual Research Input
+    tier: tier_3
+    source_type: manual
+    language: multilingual
+    region: global
+    topics:
+      - macro
+      - us_equity
+      - china_equity
+      - precious_metals
+      - crypto
+      - energy
+      - ai_frontier_tech
+    enabled: true
+    update_frequency: on_demand
+    expected_delay_minutes: 0
+    requires_auth: false
+    parser: manual
+    copyright_mode: user_supplied
+    trust_score: 70
+    notes: 用于手工添加研报、链接、会议纪要和个人研究材料。
+
+source_schema_notes:
+  source_type_options:
+    - rss
+    - api
+    - html
+    - pdf
+    - email
+    - manual
+    - social
+  copyright_mode_options:
+    - metadata_only
+    - metadata_and_excerpt
+    - full_text_permitted
+    - user_supplied
+  required_fields:
+    - id
+    - name
+    - tier
+    - source_type
+    - topics
+    - enabled
