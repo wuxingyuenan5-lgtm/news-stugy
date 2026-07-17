@@ -1,0 +1,111 @@
+version: "0.1"
+
+mode: zero_paid_content_and_data
+
+scope:
+  applies_to:
+    - news_and_media
+    - social_media
+    - wechat
+    - youtube_content_data
+    - market_data
+    - macro_data
+    - macro_calendar
+    - policy_and_event_databases
+    - proxies_and_content_parsing
+  does_not_apply_to:
+    - ai_models
+    - ai_tokens
+    - ai_transcription
+    - local_compute
+
+paid_sources:
+  allow_paid_news_subscription: false
+  allow_paid_article_content: false
+  allow_paid_social_api: false
+  allow_paid_market_data: false
+  allow_paid_macro_calendar: false
+  allow_paid_consensus_forecasts: false
+  allow_paid_policy_database: false
+  allow_paid_proxy: false
+  allow_paid_captcha_service: false
+  allow_paid_transcript_database: false
+
+fallback_policy:
+  allow_free_provider_fallback: true
+  allow_paid_provider_fallback: false
+  fail_closed_when_no_supported_source: true
+  mark_missing_instead_of_fabricating: true
+  continue_report_when_partial_failure: true
+
+content_statuses:
+  complete:
+    usable_for_detailed_summary: true
+  partial:
+    usable_for_detailed_summary: true
+    require_scope_disclosure: true
+  metadata_only:
+    usable_for_detailed_summary: false
+    usable_as_discovery_lead: true
+  unavailable:
+    usable_for_report: false
+
+preferred_free_providers:
+  x:
+    - reference_project_provider
+    - nitter_compatible_provider
+    - public_search_provider
+    - webpage_provider
+  youtube_discovery:
+    - youtube_data_api_free_quota
+    - yt_dlp
+  youtube_content:
+    - youtube_transcript_api
+    - yt_dlp_manual_subtitles
+    - yt_dlp_auto_subtitles
+    - audio_download_and_ai_transcription
+  wechat:
+    - reference_project_provider
+    - public_article_parser
+  overseas_market_data:
+    - yfinance
+    - stooq_or_other_public_daily_source
+  china_futures:
+    - akshare
+    - exchange_public_pages
+  crypto_market_data:
+    - binance_public_api
+    - okx_public_api
+    - bybit_public_api
+  us_macro:
+    - fred
+    - bls
+    - bea
+    - federal_reserve
+    - us_treasury
+  china_macro:
+    - national_bureau_of_statistics
+    - pboc
+    - general_administration_of_customs
+  macro_calendar:
+    - jin10_public_calendar
+    - official_release_calendars
+    - official_central_bank_calendars
+    - official_treasury_auction_calendars
+
+blocked_provider_examples:
+  - x_official_paid_api
+  - trading_economics_paid_api
+  - twelve_data_paid_plan
+  - alpha_vantage_paid_endpoints
+  - bloomberg_terminal
+  - refinitiv_workspace
+  - paid_residential_proxy
+
+metrics:
+  - provider_success_rate
+  - complete_content_rate
+  - metadata_only_rate
+  - market_data_missing_rate
+  - macro_consensus_coverage_rate
+  - omission_cases_caused_by_free_source_limits
