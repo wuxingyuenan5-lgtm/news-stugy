@@ -1,8 +1,8 @@
-# 最小数据结构 V0.2
+# 第一版最小数据结构
 
-第一阶段不设计复杂数据库模型。本文件只定义信息整理和报告生成真正需要的最小字段。
+第一版不设计复杂数据库模型，只定义信息整理和报告生成需要的三个对象：`Source`、`Item`和`Report`。
 
-这些字段可以先保存为 YAML、JSON、CSV 或 Markdown；只有在数据量和自动化需求出现后，再映射为数据库表。
+数据可以保存为Markdown、YAML、JSON或CSV。
 
 ## 1. Source：信息源
 
@@ -11,25 +11,30 @@ id: string
 name: string
 url: string | null
 source_level: A | B | C
-source_type: official | media | research | newsletter | social | manual
+source_type: official | media | data_platform | research | newsletter | social | manual
 markets: [string]
 content_types: [string]
 language: string
 frequency: realtime | daily | weekly | irregular
+review_cadence: realtime | daily | weekly | on_demand
+priority: core | supplementary | experimental
 enabled: boolean
+use_in_report: string
 notes: string | null
 ```
 
 说明：
 
-- A级主要是一手官方来源和原始公告；
-- B级主要是专业媒体、数据平台和高质量机构；
-- C级主要是观点、Newsletter和社交媒体线索；
-- `source_level`用于理解来源性质，不直接决定信息是否重要。
+- A级：官方、一手公告和原始数据；
+- B级：专业媒体、数据平台和高质量研究机构；
+- C级：Newsletter、博主、社交媒体和其他线索来源；
+- `source_level`用于理解来源性质，不直接决定信息是否重要；
+- `priority`用于控制日常阅读频率；
+- `use_in_report`说明该来源主要用于事实、日历、背景或周报主题。
 
 ## 2. Item：候选信息
 
-一篇文章、公告、数据发布、研报、社交媒体内容或手工记录，都可以先作为一条Item保存。
+一篇文章、公告、数据发布、研报、社交媒体内容或手工记录，统一保存为一条Item。
 
 ```yaml
 id: string
@@ -48,28 +53,19 @@ analyst_note: string | null
 report_date: date | null
 ```
 
-第一阶段必须字段：
+第一版必须字段：
 
-- 来源
-- 标题
-- 发布时间
-- 链接
-- 市场分类
-- 摘要
-- 重要性
-- 状态
+- 来源；
+- 标题；
+- 发布时间；
+- 原文链接；
+- 市场分类；
+- 内容类型；
+- 事实摘要；
+- 重要性；
+- 状态。
 
-第一阶段不强制字段：
-
-- 市场预期
-- 预期差
-- 跨资产影响
-- 传导机制
-- 影响期限
-- 置信度
-- 失效条件
-
-这些内容可以写入`analyst_note`，但不要求结构化。
+`analyst_note`为可选自由文本，不要求填写固定研究字段。
 
 ## 3. Report：报告
 
@@ -85,25 +81,9 @@ created_at: datetime
 updated_at: datetime
 ```
 
-报告正文采用Markdown保存。第一阶段只需要知道报告引用了哪些候选信息。
+报告正文使用Markdown保存。第一版只需要记录报告引用了哪些Item。
 
-## 4. WatchTopic：持续跟踪主题（可选）
-
-当某个主题连续多日出现时，可以使用一个非常轻量的记录：
-
-```yaml
-id: string
-title: string
-markets: [string]
-status: active | paused | closed
-latest_note: string
-related_item_ids: [string]
-updated_at: datetime
-```
-
-此对象不是第一阶段必选项。只有当日报出现大量重复背景时再引入。
-
-## 5. 最小关系
+## 4. 最小关系
 
 ```text
 Source
@@ -111,26 +91,15 @@ Source
        └─ Report
 ```
 
-一条Item只需要对应一个主要来源；同一事件的多篇报道可以暂时分别保存，由人工选择质量最高的一篇进入报告。
+一条Item只对应一个主要来源。同一事实存在多篇报道时，可以分别保存，由人工选择原始来源或质量最高的一篇进入报告。
 
-第一阶段不建立Event、AssetImpact、TransmissionLink、View和Evaluation等实体。
+## 5. 字段增加规则
 
-## 6. 存储建议
+第一版运行期间，只有满足以下条件的字段才允许加入：
 
-优先级如下：
-
-1. Markdown或YAML：便于直接阅读和修改；
-2. JSON或CSV：便于脚本处理；
-3. SQLite：当候选信息数量明显增加、需要搜索和去重时再加入；
-4. PostgreSQL：只有需要多人协作、网页后端或并发任务时再考虑。
-
-## 7. 增加字段的原则
-
-只有当一个字段满足以下任一条件时才加入：
-
-- 每天都需要填写；
+- 日常整理中高频使用；
 - 能明显改善筛选或报告质量；
-- 后续自动化确实需要；
-- 在两周试运行中反复出现同类需求。
+- 不增加不必要的填写负担；
+- 已在试运行中反复出现同类需求。
 
-否则先保留在自由文本备注中。
+其他字段、对象、数据库和搜索能力统一记录在[第二版优化指南](v2-optimization-guide.md)，不在第一版提前设计。
