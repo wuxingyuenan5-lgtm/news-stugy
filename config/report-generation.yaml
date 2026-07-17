@@ -1,0 +1,308 @@
+version: '0.1'
+mode: structured_evidence_first
+status: design_only
+
+references:
+  report_spec: docs/report-spec.md
+  synthesis_quality_control: docs/report-synthesis-quality-control.md
+  clustering_novelty: docs/clustering-and-novelty.md
+  scoring: config/scoring.yaml
+
+input_freeze:
+  required: true
+  include:
+    - report_type
+    - window_start
+    - window_end
+    - scheduled_at
+    - cluster_ids
+    - market_snapshot_ids
+    - calendar_event_ids
+    - source_coverage_snapshot
+    - config_hashes
+    - prompt_versions
+    - model_versions
+  allow_new_items_after_freeze: false
+
+synthesis_pipeline:
+  - freeze_inputs
+  - build_evidence_packets
+  - generate_structured_cluster_entries
+  - derive_core_conclusions
+  - assemble_sections
+  - compress_to_budget
+  - quality_check_blockers
+  - auto_repair
+  - quality_recheck
+  - render_markdown
+  - persist_report_and_audit
+
+model_access:
+  raw_item_freeform_access: false
+  evidence_packet_only_for_report_writer: true
+  internet_access_during_report_generation: false
+  title_only_content_inference: false
+  preserve_source_links_from_input_only: true
+
+content_access_policy:
+  complete:
+    detailed_entry_allowed: true
+  partial:
+    detailed_entry_allowed: true
+    disclose_scope_limit: true
+  metadata_only:
+    detailed_entry_allowed: false
+    discovery_lead_only: true
+  unavailable:
+    report_usage: forbidden
+
+entry_budgets:
+  daily_normal_event_chinese_chars:
+    minimum: 150
+    target: 220
+    maximum: 300
+  daily_major_event_chinese_chars:
+    minimum: 300
+    target: 400
+    maximum: 500
+  browse_item_chinese_chars:
+    target: 60
+    maximum: 120
+  weekly_theme_chinese_chars:
+    target: 900
+    maximum: 1600
+
+report_budgets:
+  morning:
+    target_chinese_chars: [3000, 5000]
+    target_reading_minutes: [8, 12]
+    core_conclusions: [0, 6]
+    core_clusters: [0, 10]
+    opinion_themes: [0, 5]
+    browse_items_maximum: 15
+  evening:
+    target_chinese_chars: [3000, 5000]
+    target_reading_minutes: [8, 12]
+    core_conclusions: [0, 6]
+    core_clusters: [0, 10]
+    opinion_themes: [0, 5]
+    browse_items_maximum: 15
+  weekly:
+    target_chinese_chars: [8000, 15000]
+    target_reading_minutes: [20, 30]
+    core_conclusions: [0, 10]
+    main_themes: [0, 6]
+  minimum_counts_enforced: false
+  allow_short_report: true
+  allow_empty_sections: true
+  no_padding: true
+
+entry_contract:
+  common_fields:
+    - entry_id
+    - cluster_id
+    - entry_type
+    - headline
+    - what_happened
+    - what_changed_since_previous
+    - impact_or_relevance
+    - interpretations
+    - disagreements_or_unknowns
+    - affected_assets
+    - impact_confidence
+    - source_refs
+    - claim_support_map
+    - word_budget
+  event_order:
+    - what_happened
+    - what_changed_since_previous
+    - impact_or_relevance
+    - disagreements_or_unknowns
+    - source_refs
+  opinion_order:
+    - proposition
+    - supporting_views
+    - opposing_views
+    - key_disagreements
+    - catalysts
+    - invalidation_conditions
+  research_order:
+    - research_question
+    - method_or_framework
+    - key_findings
+    - practical_relevance
+    - limitations
+
+claim_types:
+  fact:
+    direct_support_required: true
+  data:
+    direct_support_required: true
+    require_unit_and_observed_at: true
+  interpretation:
+    support_required: true
+    confidence_label_required: true
+  opinion:
+    attribution_required: true
+  forecast:
+    attribution_required: true
+    prefer_horizon_and_invalidation: true
+  unknown:
+    support_required: false
+
+support_statuses:
+  - direct_supported
+  - synthesis_supported
+  - attributed_opinion
+  - inference_labeled
+  - unsupported
+
+core_conclusion_rules:
+  prioritize:
+    - major_official_events
+    - systemic_risk
+    - macro_and_liquidity_change
+    - cross_asset_pricing_change
+    - major_asset_or_industry_theme
+    - material_disagreement_or_unknown
+  one_primary_judgment_per_conclusion: true
+  require_supporting_cluster: true
+  allow_multiple_clusters_only_with_shared_theme: true
+  causal_strength_cannot_exceed_cluster_confidence: true
+  new_numbers_or_entities_not_in_evidence: false
+
+market_board:
+  deterministic_rendering: true
+  model_recalculation_allowed: false
+  missing_value_label: 暂无可靠数据
+  require_observed_at: true
+  bond_display: yield_and_basis_point_change
+  model_role:
+    - concise_interpretation
+    - cross_asset_pattern_detection
+    - uncertainty_disclosure
+
+source_rendering:
+  representative_sources_per_core_cluster:
+    minimum: 1
+    maximum: 3
+  priority_order:
+    - official_document_or_raw_data
+    - official_institution_exchange_company
+    - first_party_professional_media
+    - professional_data_or_vertical_media
+    - high_quality_researcher
+    - unverified_lead
+  duplicate_reposts_as_representative_source: false
+  allow_model_generated_url: false
+
+cross_report_rules:
+  repeat_core_entry_allowed_for:
+    - material_update
+    - reversal
+    - market_confirmation
+  correction_and_retraction_always_reconsider: true
+  require_change_since_previous_text: true
+  no_change_repeat: forbidden
+  minor_detail_repeat: forbidden
+
+compression_order:
+  - archive_content
+  - low_score_browse_content
+  - repeated_background
+  - non_incremental_supporting_opinions
+  - excessive_representative_sources
+  - secondary_market_price_narration
+  - nonessential_history_and_adjectives
+
+compression_protected:
+  - major_official_event
+  - reversal
+  - correction
+  - retraction
+  - key_unknown
+  - source_attribution
+  - data_unit_and_timestamp
+  - weekly_key_evolution_node
+
+quality_control:
+  blockers:
+    - unsupported_material_fact
+    - title_or_hidden_content_inference
+    - wrong_report_window_or_timezone
+    - repeated_core_cluster_without_material_update
+    - incorrect_data_unit_or_direction
+    - model_generated_or_unrecognized_link
+    - opinion_rumor_or_forecast_written_as_fact
+    - confirmed_causality_without_support
+    - obsolete_conclusion_after_retraction_or_reversal
+    - material_conflict_with_evidence_packet
+  auto_repairs:
+    - missing_attribution
+    - duplicate_cluster_across_sections
+    - overclaimed_headline
+    - confidence_too_strong
+    - over_length
+    - inconsistent_asset_or_entity_naming
+    - excessive_source_list
+    - missing_change_since_previous
+    - missing_partial_content_disclosure
+  warnings:
+    - platform_coverage_drop
+    - important_source_partial_only
+    - macro_consensus_missing
+    - market_data_stale_or_missing
+    - unclear_impact
+    - backfill_completeness_unknown
+    - single_source_material_opinion
+  recheck_after_auto_repair: true
+  publish_with_blockers: false
+  fail_closed_on_unsupported_fact: true
+  allow_partial_report_after_removing_unsupported_entry: true
+
+quality_metrics:
+  - material_fact_support_rate
+  - citation_coverage_rate
+  - unsupported_claim_count
+  - partial_content_entry_count
+  - metadata_only_entry_count
+  - cross_report_repeat_count
+  - repeat_without_material_update_count
+  - duplicate_cluster_display_count
+  - confirmed_causality_count
+  - unclear_impact_count
+  - source_coverage_by_platform
+  - market_data_missing_count
+  - word_count
+
+hard_targets:
+  unsupported_claim_count: 0
+  repeat_without_material_update_count: 0
+  duplicate_cluster_display_count: 0
+  metadata_only_detailed_entry_count: 0
+
+integrity_disclosure:
+  show_only_material_failures: true
+  distinguish_call_success_from_coverage_complete: true
+  include_platform_success_counts: true
+  include_major_missing_sources: true
+  include_omitted_judgment_note_when_material: true
+
+publication:
+  unique_key:
+    - report_type
+    - scheduled_at
+  final_format: markdown
+  preserve_structured_draft: true
+  preserve_input_snapshot: true
+  preserve_quality_summary: true
+  preserve_config_hashes: true
+  preserve_prompt_and_model_versions: true
+  silent_history_rewrite: false
+  traceable_revision_allowed: true
+
+reasoning_storage:
+  store_raw_chain_of_thought: false
+  store_concise_decision_fields: true
+  store_claim_support_map: true
+  store_quality_failure_codes: true
