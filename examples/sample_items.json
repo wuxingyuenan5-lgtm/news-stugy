@@ -1,0 +1,42 @@
+[
+  {
+    "source": "示例官方来源",
+    "platform": "web",
+    "title": "某央行维持政策利率不变并强调关注通胀",
+    "content": "该央行宣布维持政策利率不变，并表示未来决策仍将取决于通胀和就业数据。",
+    "url": "https://example.com/central-bank",
+    "published_at": "2026-07-18T08:00:00+09:00"
+  },
+  {
+    "source": "示例财经媒体",
+    "platform": "rss",
+    "title": "市场解读央行维持利率不变",
+    "content": "市场认为声明整体中性，但部分交易员预计年内仍可能出现一次降息。",
+    "url": "https://example.com/market-view",
+    "published_at": "2026-07-18T09:00:00+09:00"
+  },
+  {
+    "source": "示例交易所",
+    "platform": "web",
+    "title": "铜期货库存连续第三周下降",
+    "content": "交易所数据显示，可交割铜库存连续第三周下降，现货紧张程度有所上升。",
+    "url": "https://example.com/copper-inventory",
+    "published_at": "2026-07-18T10:00:00+09:00"
+  },
+  {
+    "source": "示例研究员",
+    "platform": "manual",
+    "title": "研究员认为黄金仍受实际利率约束",
+    "content": "该研究员认为，黄金短期仍受到实际利率偏高的约束，但地缘风险限制了下行空间。",
+    "url": "https://example.com/gold-opinion",
+    "published_at": "2026-07-18T11:00:00+09:00"
+  },
+  {
+    "source": "示例科技媒体",
+    "platform": "rss",
+    "title": "大型云厂商继续增加AI数据中心支出",
+    "content": "多家大型云厂商在最新指引中继续提高AI数据中心资本开支，半导体和电力基础设施成为主要受益方向。",
+    "url": "https://example.com/ai-capex",
+    "published_at": "2026-07-18T12:00:00+09:00"
+  }
+]
