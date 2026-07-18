@@ -1,0 +1,146 @@
+[
+  {
+    "source": "Federal Reserve",
+    "platform": "official",
+    "published_at": "2026-07-17T18:00:00Z",
+    "title": "美联储官员称通胀回落仍需更多证据",
+    "content": "一名美联储官员在公开讲话中表示，近期通胀数据有所改善，但在调整政策利率前仍需要看到更多持续证据。讲话未给出具体降息日期。",
+    "url": "https://example.com/fed-speech"
+  },
+  {
+    "source": "Market Wire",
+    "platform": "media",
+    "published_at": "2026-07-17T18:20:00Z",
+    "title": "美联储官员：降息前需要更多通胀改善证据",
+    "content": "媒体转述美联储官员讲话称，通胀正在改善，但尚不足以立即调整利率，官员未承诺具体降息时间。",
+    "url": "https://example.com/fed-wire"
+  },
+  {
+    "source": "Rates Research",
+    "platform": "research",
+    "published_at": "2026-07-17T19:00:00Z",
+    "title": "研究员认为美债曲线仍可能继续陡峭化",
+    "content": "研究员认为，如果市场继续交易未来降息而财政供给保持高位，2年与10年美债利差可能进一步走阔。这一判断属于情景分析，并非已发生事实。",
+    "url": "https://example.com/rates-view"
+  },
+  {
+    "source": "China Policy Office",
+    "platform": "official",
+    "published_at": "2026-07-18T01:00:00Z",
+    "title": "有关部门发布扩大内需支持措施",
+    "content": "有关部门发布扩大内需的支持措施，内容涉及服务消费、设备更新和地方项目推进。文件给出了实施方向，但未披露统一新增资金规模。",
+    "url": "https://example.com/china-policy"
+  },
+  {
+    "source": "A股快讯",
+    "platform": "media",
+    "published_at": "2026-07-18T01:10:00Z",
+    "title": "扩大内需政策落地，消费与设备更新方向受关注",
+    "content": "市场关注新发布的扩大内需支持措施，消费、设备更新和部分基建方向盘中表现活跃。报道未证明盘中上涨完全由该政策单一驱动。",
+    "url": "https://example.com/a-share-policy"
+  },
+  {
+    "source": "港股策略师",
+    "platform": "social",
+    "published_at": "2026-07-18T02:00:00Z",
+    "title": "策略师认为港股互联网板块估值修复可能延续",
+    "content": "该策略师认为，在盈利预期稳定和风险偏好改善的情况下，港股互联网板块的估值修复可能延续，但同时提示海外流动性反复是主要风险。",
+    "url": "https://example.com/hk-opinion"
+  },
+  {
+    "source": "Gold Desk",
+    "platform": "media",
+    "published_at": "2026-07-18T03:00:00Z",
+    "title": "黄金在美元回落后走强",
+    "content": "黄金价格在美元指数回落后上涨。同期实际利率也有所下降，但现有信息不足以确认单一变量构成全部上涨原因。",
+    "url": "https://example.com/gold-move"
+  },
+  {
+    "source": "Metals Analyst",
+    "platform": "research",
+    "published_at": "2026-07-18T03:20:00Z",
+    "title": "分析师预计黄金中期仍受央行购金支撑",
+    "content": "分析师预计，央行购金与地缘风险仍可能为黄金中期价格提供支撑，但短期仍需警惕实际利率反弹。",
+    "url": "https://example.com/gold-view"
+  },
+  {
+    "source": "US Trade Office",
+    "platform": "official",
+    "published_at": "2026-07-18T04:00:00Z",
+    "title": "美国公布铜相关贸易调查后续安排",
+    "content": "美国公布铜相关贸易调查的后续程序和时间安排，文件涉及精炼铜及部分铜制品，但最终税率和生效范围仍待后续决定。",
+    "url": "https://example.com/copper-trade"
+  },
+  {
+    "source": "Copper Wire",
+    "platform": "media",
+    "published_at": "2026-07-18T04:15:00Z",
+    "title": "美国铜贸易调查进入下一阶段，最终税率尚未确定",
+    "content": "美国铜相关贸易调查进入下一阶段，市场继续关注精炼铜是否被纳入以及潜在生效时间，目前最终税率尚未公布。",
+    "url": "https://example.com/copper-wire"
+  },
+  {
+    "source": "Crypto Exchange Research",
+    "platform": "research",
+    "published_at": "2026-07-18T05:00:00Z",
+    "title": "比特币资金费率保持温和正值",
+    "content": "主要交易平台的比特币永续合约资金费率保持温和正值，未显示极端多头拥挤。不同平台费率存在差异。",
+    "url": "https://example.com/btc-funding"
+  },
+  {
+    "source": "Crypto Strategist",
+    "platform": "social",
+    "published_at": "2026-07-18T05:20:00Z",
+    "title": "交易员认为BTC突破后可能测试更高区间",
+    "content": "交易员认为，如果BTC能够维持在近期突破位上方，价格可能测试更高区间；若重新跌回突破位下方，该判断将失效。",
+    "url": "https://example.com/btc-view"
+  },
+  {
+    "source": "Semiconductor Daily",
+    "platform": "media",
+    "published_at": "2026-07-18T06:00:00Z",
+    "title": "AI服务器需求继续支撑高端芯片订单",
+    "content": "多家供应链企业表示，AI服务器相关订单仍保持增长，但部分数据中心项目的交付节奏有所延后。",
+    "url": "https://example.com/ai-server"
+  },
+  {
+    "source": "Tech Portfolio Manager",
+    "platform": "social",
+    "published_at": "2026-07-18T06:20:00Z",
+    "title": "基金经理认为AI交易已从全面受益转向利润再分配",
+    "content": "基金经理认为，AI产业链不能继续被视为同一笔交易，一个环节的利润可能成为另一环节的成本，后续应区分算力、存储、云服务和应用端。",
+    "url": "https://example.com/ai-opinion"
+  },
+  {
+    "source": "Macro Calendar",
+    "platform": "data",
+    "published_at": "2026-07-18T07:00:00Z",
+    "title": "今晚关注美国消费者信心数据",
+    "content": "今晚将公布美国消费者信心数据。当前样例未提供可靠一致预期，因此不填写预测值。",
+    "url": "https://example.com/calendar"
+  },
+  {
+    "source": "Market Wire Duplicate",
+    "platform": "media",
+    "published_at": "2026-07-18T07:10:00Z",
+    "title": "美联储官员：降息前需要更多通胀改善证据",
+    "content": "媒体转述美联储官员讲话称，通胀正在改善，但尚不足以立即调整利率，官员未承诺具体降息时间。",
+    "url": "https://example.com/fed-wire-copy"
+  },
+  {
+    "source": "Headline Only Feed",
+    "platform": "metadata",
+    "published_at": "2026-07-18T07:30:00Z",
+    "title": "某大型科技公司或将调整资本开支计划",
+    "content": "",
+    "url": "https://example.com/headline-only"
+  },
+  {
+    "source": "Correction Desk",
+    "platform": "media",
+    "published_at": "2026-07-18T08:00:00Z",
+    "title": "更正：此前报道的统一铜关税税率尚未获确认",
+    "content": "更正此前报道：目前公开文件尚未确认统一铜关税税率，最终范围和税率仍待正式决定。",
+    "url": "https://example.com/copper-correction"
+  }
+]
