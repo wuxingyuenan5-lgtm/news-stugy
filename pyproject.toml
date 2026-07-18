@@ -1,0 +1,12 @@
+[project]
+name = "news-study"
+version = "0.1.0"
+description = "Minimal content aggregation and report generation MVP"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+news-study = "app.main:main"
+
+[tool.ruff]
+line-length = 100
