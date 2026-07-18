@@ -1,0 +1,339 @@
+version: '0.1'
+status: starter_cases
+purpose: lightweight_regression_for_content_organization
+
+principles:
+  - keep_cases_small_and_high_value
+  - prioritize_real_failures
+  - do_not_block_initial_content_pipeline
+  - expected_outputs_are_structured_not_full_markdown
+
+metrics:
+  - clustering_accuracy
+  - novelty_accuracy
+  - material_fact_support
+  - duplicate_issue_count
+  - major_omission_count
+  - human_report_score
+
+cases:
+  - id: clustering-001
+    case_type: clustering
+    description: 同一官方公告被媒体完整转载
+    inputs:
+      - item_id: official-1
+        source_role: official_fact
+        title: 某监管机构发布正式规则
+        facts:
+          - 正式规则已发布
+          - 生效日期为8月1日
+      - item_id: media-1
+        source_role: professional_reporting
+        title: 某监管机构发布正式规则，8月1日起生效
+        facts:
+          - 正式规则已发布
+          - 生效日期为8月1日
+        attribution: 转述官方公告
+    expected:
+      cluster_count: 1
+      relation_for_media_1: duplicate
+      independent_source_count: 1
+    must_not:
+      - 将转载计为独立确认
+      - 在报告中生成两个条目
+    reason: 媒体没有增加独立事实或核验结果
+    status: active
+
+  - id: clustering-002
+    case_type: clustering
+    description: 两家独立媒体确认同一未正式公布事件
+    inputs:
+      - item_id: media-a
+        source_role: professional_reporting
+        facts:
+          - 政策方案预计本周提交
+        sourcing: 独立知情人士A
+      - item_id: media-b
+        source_role: professional_reporting
+        facts:
+          - 政策方案预计本周提交
+        sourcing: 独立知情人士B
+    expected:
+      cluster_count: 1
+      relation_for_media_b: corroboration
+      independent_source_count: 2
+    must_not:
+      - 标记为官方确认
+      - 将第二来源当作普通转载
+    reason: 信息相同但来源链独立，应提高可信度而非重复展示
+    status: active
+
+  - id: clustering-003
+    case_type: clustering
+    description: 同一宏观指标不同月份的数据发布
+    inputs:
+      - item_id: cpi-june
+        event_identity:
+          actor: 美国劳工统计局
+          action: 发布CPI
+          time_or_state: 6月数据
+      - item_id: cpi-july
+        event_identity:
+          actor: 美国劳工统计局
+          action: 发布CPI
+          time_or_state: 7月数据
+    expected:
+      cluster_count: 2
+      relation: separate_events
+    must_not:
+      - 因标题和实体高度相似而合并
+    reason: 不同统计期属于不同事件
+    status: active
+
+  - id: clustering-004
+    case_type: clustering
+    description: 同一资产的相反观点
+    inputs:
+      - item_id: opinion-long
+        proposition: 铜价未来三个月上涨
+        stance: bullish
+        horizon: three_months
+      - item_id: opinion-short
+        proposition: 铜价未来三个月下跌
+        stance: bearish
+        horizon: three_months
+    expected:
+      cluster_count: 1
+      cluster_type: opinion
+      relation_for_opinion_short: contradiction
+    must_not:
+      - 将二者视为重复观点
+      - 删除相反观点
+    reason: 同一命题和周期下的相反判断应并列保留
+    status: active
+
+  - id: novelty-001
+    case_type: novelty
+    description: 早报已报道传闻，晚报出现正式公告
+    inputs:
+      - previous_report_state:
+          event_status: rumor
+          reported_fact: 监管机构可能批准申请
+      - current_state:
+          event_status: approved
+          new_fact: 监管机构已发布正式批准文件
+    expected:
+      update_type: material_update
+      repeat_in_evening_core: true
+      require_change_since_previous: true
+    must_not:
+      - 写成与早报相同的背景介绍
+      - 忽略从传闻到正式确认的变化
+    reason: 事件状态和可信度发生实质改变
+    status: active
+
+  - id: novelty-002
+    case_type: novelty
+    description: 早报后只有多家媒体重复同一旧消息
+    inputs:
+      - previous_report_state:
+          event_status: approved
+          reported_facts:
+            - 已批准
+            - 8月1日生效
+      - current_state:
+          new_items_are_reposts: true
+          new_fact_count: 0
+          market_confirmation: false
+    expected:
+      update_type: no_change
+      repeat_in_evening_core: false
+    must_not:
+      - 因来源数量增加而认定为实质更新
+    reason: 转载数量不是信息增量
+    status: active
+
+  - id: novelty-003
+    case_type: novelty
+    description: 新增执行细则改变受影响范围
+    inputs:
+      - previous_report_state:
+          policy_scope: 所有进口产品
+      - current_state:
+          official_detail: 精炼产品被明确豁免
+          impact_change: 相关产业链影响显著缩小
+    expected:
+      update_type: material_update
+      repeat_in_next_report: true
+    must_not:
+      - 标记为minor_detail
+      - 沿用此前影响范围结论
+    reason: 新细节改变核心影响判断
+    status: active
+
+  - id: novelty-004
+    case_type: novelty
+    description: 事件无新事实但市场出现持续跨资产确认
+    inputs:
+      - previous_report_state:
+          policy_fact_unchanged: true
+      - current_state:
+          price_reaction:
+            persistent: true
+            cross_asset: true
+            assets:
+              - 美债收益率
+              - 美元
+              - 黄金
+          alternative_driver_unclear: false
+    expected:
+      update_type: market_confirmation
+      repeat_in_next_report: true
+      impact_confidence_maximum: likely
+    must_not:
+      - 虚构新的政策事实
+      - 将时间相关性直接写成绝对因果
+    reason: 市场定价出现新的确认，但事件事实本身未变化
+    status: active
+
+  - id: novelty-005
+    case_type: novelty
+    description: 官方撤回此前公告
+    inputs:
+      - previous_report_state:
+          event_status: approved
+          conclusion: 政策将按原计划实施
+      - current_state:
+          relation: retraction
+          official_fact: 原公告被撤回，重新评估时间未定
+    expected:
+      update_type: reversal
+      repeat_in_next_report: true
+      obsolete_previous_conclusion: true
+    must_not:
+      - 继续沿用原实施结论
+      - 静默删除此前状态而不说明反转
+    reason: 正式撤回使事件方向发生反转
+    status: active
+
+  - id: report-001
+    case_type: report
+    description: 观点必须明确归属作者
+    inputs:
+      - cluster_type: opinion
+        author: 某研究者
+        proposition: BTC可能受益于流动性改善
+        evidence:
+          - 全球流动性指标回升
+        horizon: three_months
+    expected:
+      required_elements:
+        - 作者归属
+        - 观点性质
+        - 时间周期
+        - 主要依据
+      material_fact_support: pass
+    must_not:
+      - 写成BTC将确定上涨
+      - 将作者预测写成已发生事实
+    reason: 观点、预测与事实必须分开
+    status: active
+
+  - id: report-002
+    case_type: report
+    description: 只有标题和元数据时禁止扩写正文
+    inputs:
+      - content_access: metadata_only
+        title: 某公司将发布重大AI产品
+        body: null
+        source_link_available: true
+    expected:
+      detailed_entry_allowed: false
+      allowed_usage: browse_lead_or_unknown
+    must_not:
+      - 推断产品功能
+      - 推断发布时间和商业影响
+    reason: 不可见内容不能依据标题补写
+    status: active
+
+  - id: report-003
+    case_type: report
+    description: 宏观数据必须保留数值单位和时间
+    inputs:
+      - calendar_event:
+          name: 美国CPI同比
+          actual_value: '3.0'
+          forecast_value: '3.1'
+          previous_value: '3.2'
+          unit: percent
+          released_at: '2026-07-15T20:30:00+08:00'
+    expected:
+      required_elements:
+        - 实际值3.0%
+        - 预期值3.1%
+        - 前值3.2%
+        - 北京时间发布时间
+      surprise_direction: lower_than_expected
+    must_not:
+      - 漏掉百分比单位
+      - 将低于预期写成高于预期
+    reason: 数据口径错误会直接破坏报告可信度
+    status: active
+
+  - id: report-004
+    case_type: report
+    description: 市场驱动证据不足时使用谨慎表述
+    inputs:
+      - event:
+          fact: 某政策消息发布
+      - market_snapshot:
+          asset: 黄金
+          change_percent: 1.2
+          observed_after_event: true
+      - attribution_evidence:
+          direct_reporting: false
+          competing_drivers_present: true
+    expected:
+      impact_confidence: unclear
+      acceptable_language:
+        - 时间上相符
+        - 可能是驱动之一
+        - 暂无法确认单一驱动
+    must_not:
+      - 写成该政策导致黄金上涨
+    reason: 同时发生不等于已确认因果
+    status: active
+
+  - id: report-005
+    case_type: report
+    description: 同一Cluster不能在多个核心栏目重复展开
+    inputs:
+      - cluster_id: event-123
+        candidate_sections:
+          - 宏观数据与事件复盘
+          - 核心新闻与市场主线
+    expected:
+      expanded_section_count: 1
+      cross_reference_allowed: true
+    must_not:
+      - 在两个栏目复制相同段落
+    reason: 一个信息簇只应有一个主要展示位置
+    status: active
+
+  - id: report-006
+    case_type: report
+    description: 信息不足时允许缩短报告
+    inputs:
+      - selected_core_clusters: 2
+      - selected_opinion_clusters: 0
+      - browse_items: 3
+      - all_remaining_items_low_value: true
+    expected:
+      allow_short_report: true
+      allow_empty_opinion_section: true
+      padding_forbidden: true
+    must_not:
+      - 为达到字数加入低价值旧闻
+      - 强行生成四至六条核心结论
+    reason: 内容质量优先于固定篇幅和栏目数量
+    status: active
