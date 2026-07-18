@@ -27,10 +27,10 @@ ASSET_KEYWORDS = {
 }
 
 TOPIC_KEYWORDS = {
-    "货币政策": ["美联储", "降息", "加息", "利率", "央行"],
-    "中国资产": ["a股", "港股", "中国", "沪深300", "恒生"],
+    "货币政策": ["美联储", "降息", "加息", "利率", "央行", "国债收益率"],
+    "中国资产": ["a股", "港股", "中国", "沪深300", "恒生", "上证"],
     "贵金属": ["黄金", "白银", "金价"],
-    "加密市场": ["btc", "bitcoin", "比特币", "eth", "以太坊"],
+    "加密市场": ["btc", "bitcoin", "比特币", "eth", "ethereum", "以太坊"],
     "工业金属": ["铜", "铝", "锂", "comex", "lme"],
     "科技与AI": ["ai", "人工智能", "半导体", "芯片", "数据中心"],
 }
@@ -134,10 +134,10 @@ def analyze_item(title: str, content: str) -> dict[str, Any]:
     topics = find_labels(text, TOPIC_KEYWORDS) or ["其他"]
     assets = find_labels(text, ASSET_KEYWORDS)
     lowered = text.lower()
-    opinion_markers = ["认为", "预计", "判断", "观点", "可能", "看多", "看空"]
+    opinion_markers = ["认为", "预计", "判断", "观点", "可能", "看多", "看空", "建议", "预计"]
     nature = "opinion" if any(marker in lowered for marker in opinion_markers) else "fact"
     importance = 3
-    if any(marker in lowered for marker in ["央行", "美联储", "关税", "监管", "正式宣布", "突发"]):
+    if any(marker in lowered for marker in ["央行", "美联储", "关税", "监管", "正式宣布", "突发", "撤回", "下调"]):
         importance += 1
     if len(assets) >= 2 or len(topics) >= 2:
         importance += 1
@@ -183,16 +183,30 @@ def analyze_pending(conn: sqlite3.Connection) -> int:
     return len(rows)
 
 
-def title_tokens(title: str) -> set[str]:
-    cleaned = re.sub(r"[^\w\u4e00-\u9fff]+", " ", title.lower())
-    return {token for token in cleaned.split() if len(token) >= 2}
+def title_features(title: str) -> set[str]:
+    """Return English words plus Chinese bigrams for lightweight title matching."""
+    lowered = title.lower()
+    features = set(re.findall(r"[a-z0-9][a-z0-9._%-]+", lowered))
+    chinese_chunks = re.findall(r"[\u4e00-\u9fff]+", lowered)
+    for chunk in chinese_chunks:
+        if len(chunk) == 1:
+            features.add(chunk)
+        else:
+            features.update(chunk[index : index + 2] for index in range(len(chunk) - 1))
+    return features
+
+
+def similarity(left: set[str], right: set[str]) -> float:
+    if not left or not right:
+        return 0.0
+    return len(left & right) / min(len(left), len(right))
 
 
 def cluster_items(conn: sqlite3.Connection) -> int:
     conn.execute("DELETE FROM clusters")
     rows = conn.execute(
         """
-        SELECT i.id, i.title, a.summary, a.topics_json, a.importance
+        SELECT i.id, i.title, a.summary, a.nature, a.topics_json, a.importance
         FROM items i JOIN analyses a ON a.item_id = i.id
         ORDER BY a.importance DESC, i.id
         """
@@ -201,11 +215,12 @@ def cluster_items(conn: sqlite3.Connection) -> int:
     for row in rows:
         topics = json.loads(row["topics_json"])
         topic_key = topics[0] if topics else "其他"
-        tokens = title_tokens(row["title"])
+        features = title_features(row["title"])
         target = None
         for cluster in clusters:
-            overlap = tokens & cluster["tokens"]
-            if cluster["topic_key"] == topic_key and (len(overlap) >= 2 or row["title"] == cluster["title"]):
+            same_kind = cluster["nature"] == row["nature"]
+            close_title = similarity(features, cluster["features"]) >= 0.38
+            if cluster["topic_key"] == topic_key and same_kind and close_title:
                 target = cluster
                 break
         if target is None:
@@ -213,16 +228,17 @@ def cluster_items(conn: sqlite3.Connection) -> int:
                 {
                     "title": row["title"],
                     "topic_key": topic_key,
+                    "nature": row["nature"],
                     "summary": row["summary"],
                     "importance": row["importance"],
                     "item_ids": [row["id"]],
-                    "tokens": tokens,
+                    "features": features,
                 }
             )
         else:
             target["item_ids"].append(row["id"])
             target["importance"] = max(target["importance"], row["importance"])
-            target["tokens"].update(tokens)
+            target["features"].update(features)
     for cluster in clusters:
         conn.execute(
             """
@@ -239,6 +255,15 @@ def cluster_items(conn: sqlite3.Connection) -> int:
         )
     conn.commit()
     return len(clusters)
+
+
+def cluster_nature(conn: sqlite3.Connection, item_ids: list[int]) -> str:
+    placeholders = ",".join("?" for _ in item_ids)
+    row = conn.execute(
+        f"SELECT nature, COUNT(*) AS n FROM analyses WHERE item_id IN ({placeholders}) GROUP BY nature ORDER BY n DESC LIMIT 1",
+        item_ids,
+    ).fetchone()
+    return row["nature"] if row else "fact"
 
 
 def render_report(conn: sqlite3.Connection, report_date: str) -> str:
@@ -268,6 +293,7 @@ def render_report(conn: sqlite3.Connection, report_date: str) -> str:
                 SELECT s.name, i.url FROM items i
                 LEFT JOIN sources s ON s.id = i.source_id
                 WHERE i.id IN ({placeholders})
+                ORDER BY i.id
                 """,
                 item_ids,
             ).fetchall()
@@ -275,9 +301,13 @@ def render_report(conn: sqlite3.Connection, report_date: str) -> str:
                 f"[{row['name']}]({row['url']})" if row["url"] else row["name"]
                 for row in sources
             )
+            nature = cluster_nature(conn, item_ids)
+            label = "观点" if nature == "opinion" else "事实"
             lines.extend(
                 [
                     f"#### {cluster['title']}",
+                    "",
+                    f"**类型：{label}**",
                     "",
                     cluster["summary"],
                     "",
