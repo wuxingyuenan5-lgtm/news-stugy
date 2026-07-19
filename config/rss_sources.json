@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Federal Reserve",
+    "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+    "platform": "official",
+    "enabled": true
+  },
+  {
+    "name": "Federal Reserve",
+    "url": "https://www.federalreserve.gov/feeds/speeches.xml",
+    "platform": "official",
+    "enabled": true
+  }
+]
