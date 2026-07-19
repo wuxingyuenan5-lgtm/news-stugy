@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS items (
 CREATE TABLE IF NOT EXISTS analyses (
     item_id INTEGER PRIMARY KEY,
     summary TEXT NOT NULL,
+    facts_json TEXT NOT NULL DEFAULT '[]',
     nature TEXT NOT NULL DEFAULT 'fact',
     topics_json TEXT NOT NULL DEFAULT '[]',
     assets_json TEXT NOT NULL DEFAULT '[]',
@@ -39,8 +40,12 @@ CREATE TABLE IF NOT EXISTS clusters (
     summary TEXT NOT NULL,
     importance INTEGER NOT NULL DEFAULT 3 CHECK(importance BETWEEN 1 AND 5),
     item_ids_json TEXT NOT NULL DEFAULT '[]',
+    report_date TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_clusters_report_date
+ON clusters(report_date, importance DESC);
 
 CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
