@@ -10,7 +10,7 @@ V1不解释市场涨跌，不提供交易建议，也不补写来源中没有明
 ## 当前主链路
 
 ```text
-JSON内容输入
+RSS / JSON内容输入
 → SQLite存储
 → 规则分析与事实抽取
 → 精确去重
@@ -19,11 +19,56 @@ JSON内容输入
 → Markdown日报
 ```
 
-当前版本不需要第三方依赖，也不需要API密钥，主要用于验证日报结构、聚类与编辑规则。后续可以在保持输入输出接口不变的情况下，将规则分析替换为LLM。
+当前版本不需要第三方依赖，也不需要API密钥。RSS采集、日报生成和测试均可仅使用Python标准库运行。
 
-## 快速运行
+## 真实RSS日报
 
-运行环境：Python 3.11+。
+首批真实来源为美联储官方RSS：
+
+- Monetary Policy Press Releases；
+- Speeches。
+
+源配置位于：
+
+```text
+config/rss_sources.json
+```
+
+第一步，采集最近72小时内容：
+
+```bash
+python -m app.rss_collector \
+  --config config/rss_sources.json \
+  --output data/inbox/rss-items.json \
+  --since-hours 72
+```
+
+第二步，生成日报：
+
+```bash
+python -m app.main \
+  --input data/inbox/rss-items.json \
+  --db data/app.db \
+  --output-dir data/reports \
+  --date 2026-07-19
+```
+
+安装项目后也可使用命令：
+
+```bash
+news-study-rss --config config/rss_sources.json --output data/inbox/rss-items.json
+news-study --input data/inbox/rss-items.json --date 2026-07-19
+```
+
+RSS采集参数：
+
+- `--since-hours 72`：只保留最近72小时；传入负数可关闭时间过滤；
+- `--limit-per-feed 30`：每个Feed最多读取30条；
+- `--timeout 20`：单个来源请求超时秒数；
+- 单个来源失败时继续处理其他来源；所有来源均失败时返回非零退出码；
+- 输出文件采用临时文件替换，避免中途失败留下不完整JSON。
+
+## 使用本地样例
 
 ```bash
 python -m app.main
@@ -54,7 +99,7 @@ python -m app.main \
 
 ## 输入格式
 
-输入文件必须是JSON数组：
+采集器和手工输入统一输出JSON数组：
 
 ```json
 [
@@ -64,7 +109,7 @@ python -m app.main \
     "title": "标题",
     "content": "正文或摘要",
     "url": "https://example.com/item",
-    "published_at": "2026-07-18T10:00:00+09:00"
+    "published_at": "2026-07-18T10:00:00Z"
   }
 ]
 ```
@@ -87,6 +132,7 @@ python -m app.main \
 ```text
 今日重点
 分类浏览
+待补充线索
 接下来关注
 编辑说明
 ```
@@ -120,33 +166,40 @@ SQLite仍只保留五张表：
 
 ## 测试
 
+运行全部测试：
+
 ```bash
-python -m unittest tests.test_mvp -v
+python -m unittest discover -s tests -v
 ```
 
-当前测试覆盖：
+当前覆盖：
 
 - 中文标题相似度；
 - 事实与观点区分；
 - 重复事实删除；
 - 多来源事件融合；
-- 日报基础结构；
-- 不同报告日期之间的数据隔离。
+- 不同报告日期隔离；
+- RSS 2.0解析；
+- Atom解析与相对链接补全；
+- HTML摘要清洗；
+- 发布时间过滤；
+- 跨Feed URL去重。
+
+GitHub Actions会在每次push和pull request时自动运行测试。
 
 ## 当前限制
 
-- 尚未接入统一真实采集器；
+- 当前真实采集仅接入首批美联储官方RSS；
+- RSS通常只提供摘要，尚未抓取新闻页面完整正文；
 - 尚未接入LLM；
 - 规则聚类仍需通过更多真实新闻持续校准；
 - 正式发布前仍建议人工复核Top 5和事件合并结果。
 
 ## 下一步
 
-下一阶段只围绕日报质量继续推进：
-
-1. 用更多真实新闻校准同事件融合阈值；
-2. 建立固定回归样例与期望日报；
-3. 优化Top 5排序和标题选择；
+1. 验证美联储真实Feed输出及日报质量；
+2. 增加正文页面抓取，但继续严格限制为来源原文；
+3. 接入第二类官方来源并观察跨来源事件融合；
 4. 在规则版本稳定后接入第一个LLM Analyzer。
 
 在首份真实日报达到稳定可读前，不新增行情解释、交易建议或复杂研究平台模块。
