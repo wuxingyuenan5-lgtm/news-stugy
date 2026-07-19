@@ -45,6 +45,14 @@ HIGH_IMPACT_MARKERS = (
 )
 OFFICIAL_PLATFORMS = {"official"}
 SOURCE_WEIGHTS = {"official": 4, "data": 3, "media": 2, "research": 2, "social": 1, "metadata": 0, "manual": 1}
+EVENT_ANCHOR_KEYWORDS = (
+    "美联储", "通胀", "降息", "加息", "利率", "扩大内需", "设备更新", "消费",
+    "铜", "贸易调查", "精炼铜", "关税", "税率", "黄金", "央行购金", "美元",
+    "实际利率", "比特币", "btc", "资金费率", "etf", "ai", "人工智能",
+    "服务器", "芯片", "数据中心", "港股", "a股", "互联网", "消费者信心", "非农", "cpi",
+)
+CORRECTION_MARKERS = ("更正", "此前报道", "修正")
+NOVELTY_MARKERS = ("盘中", "上涨", "下跌", "成交", "流入", "流出", "订单", "交付")
 SENTENCE_SPLIT = re.compile(r"(?<=[。！？!?；;])\s*|\n+")
 
 
@@ -162,6 +170,22 @@ def find_labels(text: str, mapping: dict[str, list[str]]) -> list[str]:
     return [label for label, keywords in mapping.items() if any(keyword.lower() in lowered for keyword in keywords)]
 
 
+def rank_topics(title: str, content: str) -> list[str]:
+    title_lower = title.lower()
+    content_lower = content.lower()
+    scores: list[tuple[int, int, str]] = []
+    for order, (label, keywords) in enumerate(TOPIC_KEYWORDS.items()):
+        score = 0
+        for keyword in keywords:
+            key = keyword.lower()
+            score += title_lower.count(key) * 3
+            score += content_lower.count(key)
+        if score:
+            scores.append((score, -order, label))
+    scores.sort(reverse=True)
+    return [label for _, _, label in scores] or ["其他"]
+
+
 def title_features(title: str) -> set[str]:
     """Return English words plus Chinese bigrams for lightweight matching."""
     lowered = title.lower()
@@ -180,6 +204,11 @@ def similarity(left: set[str], right: set[str]) -> float:
     return len(left & right) / min(len(left), len(right))
 
 
+def event_anchors(text: str) -> set[str]:
+    lowered = text.lower()
+    return {keyword for keyword in EVENT_ANCHOR_KEYWORDS if keyword.lower() in lowered}
+
+
 def _clean_sentence(sentence: str) -> str:
     return normalize_text(sentence).strip("•-—· ")
 
@@ -188,18 +217,38 @@ def _sentence_signature(sentence: str) -> set[str]:
     return title_features(re.sub(r"[，。；：、“”‘’（）()]", "", sentence))
 
 
-def dedupe_sentences(sentences: Iterable[str], threshold: float = 0.72) -> list[str]:
+def dedupe_sentences(sentences: Iterable[str], threshold: float = 0.55) -> list[str]:
     kept: list[str] = []
     signatures: list[set[str]] = []
+    anchors_list: list[set[str]] = []
     for raw in sentences:
         sentence = _clean_sentence(raw)
         if len(sentence) < 8:
             continue
         signature = _sentence_signature(sentence)
-        if any(similarity(signature, existing) >= threshold for existing in signatures):
+        anchors = event_anchors(sentence)
+        correction = any(marker in sentence for marker in CORRECTION_MARKERS)
+        duplicate = False
+        for existing_sentence, existing_signature, existing_anchors in zip(kept, signatures, anchors_list):
+            numbers = set(re.findall(r"\d+(?:\.\d+)?%?", sentence))
+            existing_numbers = set(re.findall(r"\d+(?:\.\d+)?%?", existing_sentence))
+            if numbers and existing_numbers and numbers != existing_numbers:
+                continue
+            if similarity(signature, existing_signature) >= threshold:
+                duplicate = True
+                break
+            overlap = anchors & existing_anchors
+            adds_market_detail = any(marker in sentence for marker in NOVELTY_MARKERS) and not any(
+                marker in existing_sentence for marker in NOVELTY_MARKERS
+            )
+            if len(overlap) >= 3 and not correction and not adds_market_detail:
+                duplicate = True
+                break
+        if duplicate:
             continue
         kept.append(sentence)
         signatures.append(signature)
+        anchors_list.append(anchors)
     return kept
 
 
@@ -232,7 +281,7 @@ def _base_importance(text: str, topics: list[str], assets: list[str], platform: 
 
 def analyze_item(title: str, content: str, platform: str = "manual") -> dict[str, Any]:
     text = f"{title} {content}"
-    topics = find_labels(text, TOPIC_KEYWORDS) or ["其他"]
+    topics = rank_topics(title, content)
     assets = find_labels(text, ASSET_KEYWORDS)
     nature = "opinion" if any(marker in text.lower() for marker in OPINION_MARKERS) else "fact"
     facts = extract_facts(title, content, nature)
@@ -348,9 +397,13 @@ def cluster_items(conn: sqlite3.Connection, item_ids: list[int] | None = None, r
         for cluster in clusters:
             same_topic = cluster["topic_key"] == topic_key
             same_kind = cluster["nature"] == row["nature"]
-            title_close = similarity(title_features(row["title"]), cluster["title_features"]) >= 0.34
-            event_close = similarity(features, cluster["features"]) >= 0.42
-            if same_topic and same_kind and (title_close or event_close):
+            title_close = similarity(title_features(row["title"]), cluster["title_features"]) >= 0.22
+            event_close = similarity(features, cluster["features"]) >= 0.32
+            anchors = event_anchors(f"{row['title']} {' '.join(facts)}")
+            anchor_overlap = anchors & cluster["anchors"]
+            correction = any(marker in row["title"] for marker in CORRECTION_MARKERS)
+            anchor_close = len(anchor_overlap) >= 3 or (correction and len(anchor_overlap) >= 2)
+            if same_topic and same_kind and (title_close or event_close or anchor_close):
                 target = cluster
                 break
         if target is None:
@@ -360,11 +413,13 @@ def cluster_items(conn: sqlite3.Connection, item_ids: list[int] | None = None, r
                 "items": [row],
                 "features": set(features),
                 "title_features": title_features(row["title"]),
+                "anchors": event_anchors(f"{row['title']} {' '.join(facts)}"),
             })
         else:
             target["items"].append(row)
             target["features"].update(features)
             target["title_features"].update(title_features(row["title"]))
+            target["anchors"].update(event_anchors(f"{row['title']} {' '.join(facts)}"))
     for cluster in clusters:
         items = cluster["items"]
         event_facts = dedupe_sentences(fact for item in items for fact in json.loads(item["facts_json"]))[:4]
@@ -462,6 +517,7 @@ def render_report(conn: sqlite3.Connection, report_date: str) -> str:
     top_events = ranked[:5]
     top_ids = {event.id for event in top_events}
     remaining = [event for event in ranked if event.id not in top_ids and event.importance >= 2]
+    low_confidence = [event for event in ranked if event.id not in top_ids and (event.importance < 2 or not event.has_full_text)]
     item_count = sum(len(event.item_ids) for event in events)
     lines = [
         f"# 今日跨资产日报｜{report_date}", "",
@@ -488,6 +544,11 @@ def render_report(conn: sqlite3.Connection, report_date: str) -> str:
             lines.extend(_render_event(event, heading_level=4))
     if not rendered_section:
         lines.extend(["- 今日其他信息已全部纳入“今日重点”。", ""])
+    if low_confidence:
+        lines.extend(["## 待补充线索", ""])
+        for event in low_confidence:
+            lines.extend(_render_event(event, heading_level=3))
+
     lines.extend(["## 接下来关注", ""])
     if forward_events:
         for event in forward_events:
